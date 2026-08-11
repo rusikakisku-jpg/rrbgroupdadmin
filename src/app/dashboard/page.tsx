@@ -181,6 +181,42 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (tab === 'dashboard') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', tab);
+      }
+      window.history.pushState({}, '', url.toString());
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab') as TabType | null;
+      const validTabs: TabType[] = ['dashboard', 'list', 'add', 'categories', 'menu', 'comments', 'subscribers', 'settings'];
+      if (tabParam && validTabs.includes(tabParam)) {
+        setActiveTab(tabParam);
+      }
+
+      const handlePopState = () => {
+        const params = new URLSearchParams(window.location.search);
+        const t = params.get('tab') as TabType | null;
+        if (t && validTabs.includes(t)) {
+          setActiveTab(t);
+        } else {
+          setActiveTab('dashboard');
+        }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, []);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -207,7 +243,7 @@ export default function AdminDashboardPage() {
     setContent('');
     setMetaTitle('');
     setMetaDesc('');
-    setActiveTab('add');
+    handleTabChange('add');
   };
 
   const handleEditPost = (p: Post) => {
@@ -221,7 +257,7 @@ export default function AdminDashboardPage() {
     setContent(p.content || '');
     setMetaTitle(p.title);
     setMetaDesc(p.excerpt || '');
-    setActiveTab('add');
+    handleTabChange('add');
   };
 
   const handleSavePost = async (e: React.FormEvent) => {
@@ -252,7 +288,7 @@ export default function AdminDashboardPage() {
       if (res.ok) {
         showSuccess(editId ? 'Post updated successfully!' : 'Post created successfully!');
         loadData();
-        setActiveTab('list');
+        handleTabChange('list');
       } else {
         showError('Failed to save post.');
       }
@@ -471,7 +507,7 @@ export default function AdminDashboardPage() {
           <li>
             <button
               className={`sidebar-link ${activeTab === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setActiveTab('dashboard')}
+              onClick={() => handleTabChange('dashboard')}
             >
               <LayoutGrid style={{ width: '18px', height: '18px' }} />
               <span>Dashboard</span>
@@ -480,7 +516,7 @@ export default function AdminDashboardPage() {
           <li>
             <button
               className={`sidebar-link ${activeTab === 'list' ? 'active' : ''}`}
-              onClick={() => setActiveTab('list')}
+              onClick={() => handleTabChange('list')}
             >
               <FileText style={{ width: '18px', height: '18px' }} />
               <span>All Articles</span>
@@ -498,7 +534,7 @@ export default function AdminDashboardPage() {
           <li>
             <button
               className={`sidebar-link ${activeTab === 'categories' ? 'active' : ''}`}
-              onClick={() => setActiveTab('categories')}
+              onClick={() => handleTabChange('categories')}
             >
               <Tags style={{ width: '18px', height: '18px' }} />
               <span>Categories</span>
@@ -507,7 +543,7 @@ export default function AdminDashboardPage() {
           <li>
             <button
               className={`sidebar-link ${activeTab === 'menu' ? 'active' : ''}`}
-              onClick={() => setActiveTab('menu')}
+              onClick={() => handleTabChange('menu')}
             >
               <MenuIcon style={{ width: '18px', height: '18px' }} />
               <span>Header Menu</span>
@@ -516,7 +552,7 @@ export default function AdminDashboardPage() {
           <li>
             <button
               className={`sidebar-link ${activeTab === 'comments' ? 'active' : ''}`}
-              onClick={() => setActiveTab('comments')}
+              onClick={() => handleTabChange('comments')}
             >
               <MessageSquare style={{ width: '18px', height: '18px' }} />
               <span>Comments ({comments.length})</span>
@@ -525,7 +561,7 @@ export default function AdminDashboardPage() {
           <li>
             <button
               className={`sidebar-link ${activeTab === 'subscribers' ? 'active' : ''}`}
-              onClick={() => setActiveTab('subscribers')}
+              onClick={() => handleTabChange('subscribers')}
             >
               <Users style={{ width: '18px', height: '18px' }} />
               <span>Subscribers ({subscribers.length})</span>
@@ -534,7 +570,7 @@ export default function AdminDashboardPage() {
           <li>
             <button
               className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''}`}
-              onClick={() => setActiveTab('settings')}
+              onClick={() => handleTabChange('settings')}
             >
               <Settings style={{ width: '18px', height: '18px' }} />
               <span>Settings</span>
@@ -659,7 +695,7 @@ export default function AdminDashboardPage() {
               <div className="admin-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                   <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Recent Articles</h3>
-                  <button className="btn btn-secondary" onClick={() => setActiveTab('list')} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
+                  <button className="btn btn-secondary" onClick={() => handleTabChange('list')} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
                     View All →
                   </button>
                 </div>
@@ -702,13 +738,13 @@ export default function AdminDashboardPage() {
                   <button className="btn btn-primary" onClick={handleOpenAddForm} style={{ justifyContent: 'center', width: '100%' }}>
                     <PlusCircle style={{ width: '18px', height: '18px' }} /> Create New Article
                   </button>
-                  <button className="btn btn-secondary" onClick={() => setActiveTab('categories')} style={{ justifyContent: 'center', width: '100%' }}>
+                  <button className="btn btn-secondary" onClick={() => handleTabChange('categories')} style={{ justifyContent: 'center', width: '100%' }}>
                     <Tags style={{ width: '18px', height: '18px' }} /> Manage Categories
                   </button>
-                  <button className="btn btn-secondary" onClick={() => setActiveTab('menu')} style={{ justifyContent: 'center', width: '100%' }}>
+                  <button className="btn btn-secondary" onClick={() => handleTabChange('menu')} style={{ justifyContent: 'center', width: '100%' }}>
                     <MenuIcon style={{ width: '18px', height: '18px' }} /> Manage Header Menu
                   </button>
-                  <button className="btn btn-secondary" onClick={() => setActiveTab('settings')} style={{ justifyContent: 'center', width: '100%' }}>
+                  <button className="btn btn-secondary" onClick={() => handleTabChange('settings')} style={{ justifyContent: 'center', width: '100%' }}>
                     <Settings style={{ width: '18px', height: '18px' }} /> Website Settings
                   </button>
                 </div>
