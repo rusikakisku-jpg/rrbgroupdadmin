@@ -29,13 +29,16 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
 .admin-container {
   display: grid;
   grid-template-columns: 260px 1fr;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: #0b0f19;
 }
 
 @media (max-width: 991px) {
   .admin-container {
     grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
   }
 }
 
@@ -46,6 +49,11 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .sidebar-brand {
@@ -99,6 +107,7 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
 
 .admin-main {
   padding: 32px 40px;
+  height: 100vh;
   overflow-y: auto;
   max-width: 1400px;
   width: 100%;
