@@ -27,6 +27,7 @@ import {
   ArrowDown,
   Search,
   ExternalLink,
+  X,
 } from 'lucide-react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://rrbgroupdanswerkey.rusikakisku.workers.dev';
@@ -586,19 +587,27 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* ALERTS */}
-        {successAlert && (
-          <div style={{ background: '#064e3b', color: '#6ee7b7', border: '1px solid #047857', padding: '15px 20px', borderRadius: '12px', marginBottom: '25px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <CheckCircle style={{ width: '20px', height: '20px' }} />
-            <span>{successAlert}</span>
-          </div>
-        )}
-        {errorAlert && (
-          <div style={{ background: '#4c0519', color: '#fca5a5', border: '1px solid #9f1239', padding: '15px 20px', borderRadius: '12px', marginBottom: '25px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <AlertCircle style={{ width: '20px', height: '20px' }} />
-            <span>{errorAlert}</span>
-          </div>
-        )}
+        {/* FLOATING TOAST NOTIFICATIONS */}
+        <div className="toast-container">
+          {successAlert && (
+            <div className="toast-item toast-success">
+              <CheckCircle style={{ width: '20px', height: '20px', flexShrink: 0 }} />
+              <span>{successAlert}</span>
+              <button className="toast-close" onClick={() => setSuccessAlert('')} aria-label="Close notification">
+                <X style={{ width: '16px', height: '16px' }} />
+              </button>
+            </div>
+          )}
+          {errorAlert && (
+            <div className="toast-item toast-error">
+              <AlertCircle style={{ width: '20px', height: '20px', flexShrink: 0 }} />
+              <span>{errorAlert}</span>
+              <button className="toast-close" onClick={() => setErrorAlert('')} aria-label="Close notification">
+                <X style={{ width: '16px', height: '16px' }} />
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* TAB 1: DASHBOARD OVERVIEW */}
         {activeTab === 'dashboard' && (
