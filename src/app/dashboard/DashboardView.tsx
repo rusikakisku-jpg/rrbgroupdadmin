@@ -32,7 +32,7 @@ import {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://rrbgroupdanswerkey.rusikakisku.workers.dev';
 
-export type TabType = 'dashboard' | 'list' | 'add' | 'categories' | 'menu' | 'comments' | 'subscribers' | 'settings';
+export type TabType = 'dashboard' | 'list' | 'add' | 'edit' | 'categories' | 'menu' | 'comments' | 'subscribers' | 'settings';
 
 interface DashboardViewProps {
   initialTab?: TabType;
@@ -210,6 +210,29 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setTimeout(() => setErrorAlert(''), 4000);
   };
 
+  useEffect(() => {
+    if (posts.length > 0 && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const paramId = params.get('id');
+      if (paramId) {
+        const targetPost = posts.find((p) => String(p.id) === String(paramId));
+        if (targetPost) {
+          setEditId(targetPost.id);
+          setTitle(targetPost.title);
+          setSlug(targetPost.slug);
+          setCategory(targetPost.category);
+          setStatus(targetPost.status);
+          setCoverImage(targetPost.cover_image || '');
+          setExcerpt(targetPost.excerpt || '');
+          setContent(targetPost.content || '');
+          setMetaTitle(targetPost.title);
+          setMetaDesc(targetPost.excerpt || '');
+          setActiveTab('edit');
+        }
+      }
+    }
+  }, [posts]);
+
   // --- POST ACTIONS ---
   const handleOpenAddForm = () => {
     setEditId(null);
@@ -236,7 +259,8 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setContent(p.content || '');
     setMetaTitle(p.title);
     setMetaDesc(p.excerpt || '');
-    handleTabChange('add');
+    setActiveTab('edit');
+    router.push(`/dashboard/edit/?id=${p.id}`);
   };
 
   const handleSavePost = async (e: React.FormEvent) => {
@@ -566,7 +590,8 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'white', margin: 0 }}>
               {activeTab === 'dashboard' && 'Dashboard Overview'}
               {activeTab === 'list' && 'Articles Manager'}
-              {activeTab === 'add' && (editId ? 'Edit Article' : 'Create New Article')}
+              {activeTab === 'add' && 'Create New Article'}
+              {activeTab === 'edit' && 'Edit Article'}
               {activeTab === 'categories' && 'Categories Management'}
               {activeTab === 'menu' && 'Header Menu Management'}
               {activeTab === 'comments' && 'Comments Moderation'}
@@ -829,7 +854,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         )}
 
         {/* TAB 3: ADD / EDIT ARTICLE FORM */}
-        {activeTab === 'add' && (
+        {(activeTab === 'add' || activeTab === 'edit') && (
           <form onSubmit={handleSavePost} className="admin-card">
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
               {/* Left Column: Title & Content */}

@@ -4,6 +4,7 @@ export function generateStaticParams() {
   return [
     { tab: 'list' },
     { tab: 'add' },
+    { tab: 'edit' },
     { tab: 'categories' },
     { tab: 'menu' },
     { tab: 'comments' },
