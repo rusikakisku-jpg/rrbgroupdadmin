@@ -193,8 +193,49 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
     const targetUrl = tab === 'dashboard' ? '/dashboard/' : `/dashboard/${tab}/`;
-    router.push(targetUrl);
+    if (typeof window !== 'undefined' && window.location.pathname !== targetUrl) {
+      window.history.pushState({ tab }, '', targetUrl);
+    }
   };
+
+  // Listen to browser Back/Forward navigation for instant silent tab switching
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== 'undefined') {
+        const path = window.location.pathname.replace(/\/+$/, '');
+        const parts = path.split('/');
+        const currentTab = parts[parts.length - 1];
+        const validTabs: TabType[] = ['dashboard', 'list', 'add', 'edit', 'categories', 'menu', 'comments', 'subscribers', 'settings'];
+        if (validTabs.includes(currentTab as TabType)) {
+          setActiveTab(currentTab as TabType);
+        } else if (path === '/dashboard' || path === '') {
+          setActiveTab('dashboard');
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const paramId = params.get('id');
+        if (paramId && posts.length > 0) {
+          const targetPost = posts.find((p) => String(p.id) === String(paramId));
+          if (targetPost) {
+            setEditId(targetPost.id);
+            setTitle(targetPost.title);
+            setSlug(targetPost.slug);
+            setCategory(targetPost.category);
+            setStatus(targetPost.status);
+            setCoverImage(targetPost.cover_image || '');
+            setExcerpt(targetPost.excerpt || '');
+            setContent(targetPost.content || '');
+            setMetaTitle(targetPost.title);
+            setMetaDesc(targetPost.excerpt || '');
+            setActiveTab('edit');
+          }
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [posts]);
 
   useEffect(() => {
     loadData();
@@ -245,7 +286,11 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setContent('');
     setMetaTitle('');
     setMetaDesc('');
-    handleTabChange('add');
+    setActiveTab('add');
+    const targetUrl = '/dashboard/add/';
+    if (typeof window !== 'undefined' && window.location.pathname !== targetUrl) {
+      window.history.pushState({ tab: 'add' }, '', targetUrl);
+    }
   };
 
   const handleEditPost = (p: Post) => {
@@ -260,7 +305,10 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setMetaTitle(p.title);
     setMetaDesc(p.excerpt || '');
     setActiveTab('edit');
-    router.push(`/dashboard/edit/?id=${p.id}`);
+    const targetUrl = `/dashboard/edit/?id=${p.id}`;
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ tab: 'edit', id: p.id }, '', targetUrl);
+    }
   };
 
   const handleSavePost = async (e: React.FormEvent) => {
