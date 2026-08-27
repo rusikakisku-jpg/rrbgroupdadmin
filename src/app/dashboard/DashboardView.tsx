@@ -191,6 +191,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   };
 
   const handleTabChange = (tab: TabType) => {
+    setEditId(null);
     setActiveTab(tab);
     const targetUrl = tab === 'dashboard' ? '/dashboard/' : `/dashboard/${tab}/`;
     if (typeof window !== 'undefined' && window.location.pathname !== targetUrl) {
@@ -207,14 +208,17 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         const currentTab = parts[parts.length - 1];
         const validTabs: TabType[] = ['dashboard', 'list', 'add', 'edit', 'categories', 'menu', 'comments', 'subscribers', 'settings'];
         if (validTabs.includes(currentTab as TabType)) {
+          setEditId(null);
           setActiveTab(currentTab as TabType);
         } else if (path === '/dashboard' || path === '') {
+          setEditId(null);
           setActiveTab('dashboard');
         }
 
+        const isEditRoute = window.location.pathname.includes('/edit');
         const params = new URLSearchParams(window.location.search);
         const paramId = params.get('id');
-        if (paramId && posts.length > 0) {
+        if (isEditRoute && paramId && posts.length > 0) {
           const targetPost = posts.find((p) => String(p.id) === String(paramId));
           if (targetPost) {
             setEditId(targetPost.id);
@@ -253,9 +257,10 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
 
   useEffect(() => {
     if (posts.length > 0 && typeof window !== 'undefined') {
+      const isEditRoute = window.location.pathname.includes('/edit');
       const params = new URLSearchParams(window.location.search);
       const paramId = params.get('id');
-      if (paramId) {
+      if (isEditRoute && paramId) {
         const targetPost = posts.find((p) => String(p.id) === String(paramId));
         if (targetPost) {
           setEditId(targetPost.id);
@@ -575,7 +580,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           </li>
           <li>
             <button
-              className={`sidebar-link ${activeTab === 'add' && !editId ? 'active' : ''}`}
+              className={`sidebar-link ${activeTab === 'add' ? 'active' : ''}`}
               onClick={handleOpenAddForm}
             >
               <PlusCircle style={{ width: '18px', height: '18px' }} />
