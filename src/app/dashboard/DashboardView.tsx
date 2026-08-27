@@ -114,74 +114,96 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setLoading(true);
     try {
       // 1. Fetch Posts
-      const postsRes = await fetch(`${API_BASE}/api/posts?status=all`, { cache: 'no-store' });
-      if (postsRes.ok) {
-        const postsData = await postsRes.json();
-        setPosts(postsData);
+      try {
+        const postsRes = await fetch(`${API_BASE}/api/posts?status=all`, { cache: 'no-store' });
+        if (postsRes.ok) {
+          const postsData = await postsRes.json();
+          setPosts(Array.isArray(postsData) ? postsData : []);
+        } else {
+          setPosts([]);
+        }
+      } catch (_) {
+        setPosts([]);
       }
 
       // 2. Fetch Settings
-      const settingsRes = await fetch(`${API_BASE}/api/settings`, { cache: 'no-store' });
-      if (settingsRes.ok) {
-        const settingsData = await settingsRes.json();
-        setSettingsMap(settingsData);
+      try {
+        const settingsRes = await fetch(`${API_BASE}/api/settings`, { cache: 'no-store' });
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          if (settingsData && typeof settingsData === 'object') {
+            setSettingsMap(settingsData);
 
-        if (settingsData.site_title) setSiteTitleVal(settingsData.site_title);
-        if (settingsData.site_tagline) setSiteTaglineVal(settingsData.site_tagline);
-        if (settingsData.site_description) setSiteDescVal(settingsData.site_description);
-        if (settingsData.default_meta_description) setDefaultMetaDescVal(settingsData.default_meta_description);
-        if (settingsData.site_logo) setSiteLogoVal(settingsData.site_logo);
-        if (settingsData.site_favicon) setSiteFaviconVal(settingsData.site_favicon);
-        if (settingsData.ads_status !== undefined) setAdsStatusVal(settingsData.ads_status);
-        if (settingsData.google_adsense_header) setAdHeaderVal(settingsData.google_adsense_header);
-        if (settingsData.google_adsense_top) setAdTopVal(settingsData.google_adsense_top);
-        if (settingsData.google_adsense_bottom) setAdBottomVal(settingsData.google_adsense_bottom);
-        if (settingsData.google_adsense_sidebar) setAdSidebarVal(settingsData.google_adsense_sidebar);
-        if (settingsData.tinymce_api_key) setTinymceApiKeyVal(settingsData.tinymce_api_key);
-        if (settingsData.google_search_console) setGscVal(settingsData.google_search_console);
-        if (settingsData.google_analytics) setGaVal(settingsData.google_analytics);
-        if (settingsData.onesignal_app_id) setOneSignalAppIdVal(settingsData.onesignal_app_id);
-        if (settingsData.onesignal_api_key) setOneSignalApiKeyVal(settingsData.onesignal_api_key);
-        if (settingsData.robots_txt) setRobotsTxtVal(settingsData.robots_txt);
+            if (settingsData.site_title) setSiteTitleVal(settingsData.site_title);
+            if (settingsData.site_tagline) setSiteTaglineVal(settingsData.site_tagline);
+            if (settingsData.site_description) setSiteDescVal(settingsData.site_description);
+            if (settingsData.default_meta_description) setDefaultMetaDescVal(settingsData.default_meta_description);
+            if (settingsData.site_logo) setSiteLogoVal(settingsData.site_logo);
+            if (settingsData.site_favicon) setSiteFaviconVal(settingsData.site_favicon);
+            if (settingsData.ads_status !== undefined) setAdsStatusVal(settingsData.ads_status);
+            if (settingsData.google_adsense_header) setAdHeaderVal(settingsData.google_adsense_header);
+            if (settingsData.google_adsense_top) setAdTopVal(settingsData.google_adsense_top);
+            if (settingsData.google_adsense_bottom) setAdBottomVal(settingsData.google_adsense_bottom);
+            if (settingsData.google_adsense_sidebar) setAdSidebarVal(settingsData.google_adsense_sidebar);
+            if (settingsData.tinymce_api_key) setTinymceApiKeyVal(settingsData.tinymce_api_key);
+            if (settingsData.google_search_console) setGscVal(settingsData.google_search_console);
+            if (settingsData.google_analytics) setGaVal(settingsData.google_analytics);
+            if (settingsData.onesignal_app_id) setOneSignalAppIdVal(settingsData.onesignal_app_id);
+            if (settingsData.onesignal_api_key) setOneSignalApiKeyVal(settingsData.onesignal_api_key);
+            if (settingsData.robots_txt) setRobotsTxtVal(settingsData.robots_txt);
 
-        // Parse Categories
-        const catsRaw = settingsData.site_categories || 'Notification, Answer Key, Admit Card, Result, Syllabus';
-        const catsArr = catsRaw.split(',').map((c: string) => c.trim()).filter(Boolean);
-        setCategoriesList(catsArr);
+            // Parse Categories
+            const catsRaw = settingsData.site_categories || 'Notification, Answer Key, Admit Card, Result, Syllabus';
+            const catsArr = catsRaw.split(',').map((c: string) => c.trim()).filter(Boolean);
+            setCategoriesList(catsArr);
 
-        const hiddenCatsRaw = settingsData.hidden_categories || '';
-        const hiddenCatsArr = hiddenCatsRaw.split(',').map((c: string) => c.trim()).filter(Boolean);
-        setHiddenCategoriesList(hiddenCatsArr);
+            const hiddenCatsRaw = settingsData.hidden_categories || '';
+            const hiddenCatsArr = hiddenCatsRaw.split(',').map((c: string) => c.trim()).filter(Boolean);
+            setHiddenCategoriesList(hiddenCatsArr);
 
-        // Parse Menu
-        try {
-          if (settingsData.site_menu) {
-            setMenuList(JSON.parse(settingsData.site_menu));
-          } else {
-            setMenuList([
-              { title: 'Home', url: '/', visible: 1 },
-              { title: 'Notification', url: '/notification/', visible: 1 },
-              { title: 'Answer Key', url: '/answer-key/', visible: 0 },
-              { title: 'Admit Card', url: '/admit-card/', visible: 0 },
-              { title: 'Result', url: '/result/', visible: 0 },
-              { title: 'Syllabus', url: '/syllabus/', visible: 1 },
-            ]);
+            // Parse Menu
+            try {
+              if (settingsData.site_menu) {
+                setMenuList(JSON.parse(settingsData.site_menu));
+              } else {
+                setMenuList([
+                  { title: 'Home', url: '/', visible: 1 },
+                  { title: 'Notification', url: '/notification/', visible: 1 },
+                  { title: 'Answer Key', url: '/answer-key/', visible: 0 },
+                  { title: 'Admit Card', url: '/admit-card/', visible: 0 },
+                  { title: 'Result', url: '/result/', visible: 0 },
+                  { title: 'Syllabus', url: '/syllabus/', visible: 1 },
+                ]);
+              }
+            } catch (_) {}
           }
-        } catch (_) {}
-      }
+        }
+      } catch (_) {}
 
       // 3. Fetch Comments
-      const commentsRes = await fetch(`${API_BASE}/api/comments`, { cache: 'no-store' });
-      if (commentsRes.ok) {
-        const commentsData = await commentsRes.json();
-        setComments(commentsData);
+      try {
+        const commentsRes = await fetch(`${API_BASE}/api/comments`, { cache: 'no-store' });
+        if (commentsRes.ok) {
+          const commentsData = await commentsRes.json();
+          setComments(Array.isArray(commentsData) ? commentsData : []);
+        } else {
+          setComments([]);
+        }
+      } catch (_) {
+        setComments([]);
       }
 
       // 4. Fetch Subscribers
-      const subRes = await fetch(`${API_BASE}/api/subscribers`, { cache: 'no-store' });
-      if (subRes.ok) {
-        const subData = await subRes.json();
-        setSubscribers(subData);
+      try {
+        const subRes = await fetch(`${API_BASE}/api/subscribers`, { cache: 'no-store' });
+        if (subRes.ok) {
+          const subData = await subRes.json();
+          setSubscribers(Array.isArray(subData) ? subData : []);
+        } else {
+          setSubscribers([]);
+        }
+      } catch (_) {
+        setSubscribers([]);
       }
     } catch (err) {
       console.error(err);
@@ -535,20 +557,23 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   };
 
   // Calculated Stats
-  const totalPosts = posts.length;
-  const publishedPosts = posts.filter((p) => p.status === 'publish').length;
-  const totalViews = posts.reduce((sum, p) => sum + (p.views || 0), 0);
-  const totalSubscribers = subscribers.length;
+  const totalPosts = Array.isArray(posts) ? posts.length : 0;
+  const publishedPosts = Array.isArray(posts) ? posts.filter((p) => p.status === 'publish').length : 0;
+  const totalViews = Array.isArray(posts) ? posts.reduce((sum, p) => sum + (p.views || 0), 0) : 0;
+  const totalSubscribers = Array.isArray(subscribers) ? subscribers.length : 0;
+  const totalComments = Array.isArray(comments) ? comments.length : 0;
 
   // Filtered Posts
-  const filteredPosts = posts.filter((p) => {
-    const matchesSearch =
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.slug.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-    const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter;
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
+  const filteredPosts = Array.isArray(posts)
+    ? posts.filter((p) => {
+        const matchesSearch =
+          p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.slug?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
+        const matchesCategory = categoryFilter === 'all' || p.category === categoryFilter;
+        return matchesSearch && matchesStatus && matchesCategory;
+      })
+    : [];
 
   return (
     <div className="admin-container">
@@ -611,7 +636,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               onClick={() => handleTabChange('comments')}
             >
               <MessageSquare style={{ width: '18px', height: '18px' }} />
-              <span>Comments ({comments.length})</span>
+              <span>Comments ({totalComments})</span>
             </button>
           </li>
           <li>
@@ -620,7 +645,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               onClick={() => handleTabChange('subscribers')}
             >
               <Users style={{ width: '18px', height: '18px' }} />
-              <span>Subscribers ({subscribers.length})</span>
+              <span>Subscribers ({totalSubscribers})</span>
             </button>
           </li>
           <li>
@@ -1219,7 +1244,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   </tr>
                 </thead>
                 <tbody>
-                  {comments.length === 0 ? (
+                  {!Array.isArray(comments) || comments.length === 0 ? (
                     <tr>
                       <td colSpan={4} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
                         No user comments submitted yet.
@@ -1268,7 +1293,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         {activeTab === 'subscribers' && (
           <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Email Subscribers ({subscribers.length})</h3>
+              <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Email Subscribers ({totalSubscribers})</h3>
             </div>
 
             <div className="table-container">
@@ -1281,7 +1306,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   </tr>
                 </thead>
                 <tbody>
-                  {subscribers.length === 0 ? (
+                  {!Array.isArray(subscribers) || subscribers.length === 0 ? (
                     <tr>
                       <td colSpan={3} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
                         No email subscribers yet.
