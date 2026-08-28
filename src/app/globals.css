@@ -132,7 +132,7 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
 
 .admin-body {
   padding: 28px 36px 48px 36px;
-  max-width: 1400px;
+  max-width: 100%;
   width: 100%;
   box-sizing: border-box;
   flex: 1;

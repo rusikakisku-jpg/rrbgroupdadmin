@@ -995,9 +995,9 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           </div>
         )}
 
-        {/* TAB 3: ADD / EDIT ARTICLE FORM (SINGLE COLUMN) */}
+        {/* TAB 3: ADD / EDIT ARTICLE FORM (FULL WIDTH SINGLE COLUMN) */}
         {(activeTab === 'add' || activeTab === 'edit') && (
-          <form onSubmit={handleSavePost} className="admin-card" style={{ maxWidth: '960px', margin: '0 auto 30px auto' }}>
+          <form onSubmit={handleSavePost} className="admin-card" style={{ width: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #334155', paddingBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white', margin: 0 }}>
