@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Post, MenuItem, CommentItem, SubscriberItem } from '@/lib/types';
 import {
   ShieldCheck,
+  KeyRound,
   LayoutGrid,
   FileText,
   PlusCircle,
@@ -580,8 +581,8 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       {/* SIDEBAR NAVIGATION */}
       <aside className="admin-sidebar">
         <div className="sidebar-brand">
-          <ShieldCheck style={{ width: '28px', height: '28px', color: '#3b82f6' }} />
-          <span>AuraAdmin</span>
+          <KeyRound style={{ width: '26px', height: '26px', color: '#38bdf8' }} />
+          <span>RRB Admin</span>
         </div>
 
         <ul className="sidebar-menu">
@@ -727,7 +728,8 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           )}
         </div>
 
-        {/* TAB 1: DASHBOARD OVERVIEW */}
+        <div className="admin-body">
+          {/* TAB 1: DASHBOARD OVERVIEW */}
         {activeTab === 'dashboard' && (
           <>
             <div className="stats-grid">
@@ -1484,6 +1486,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             </div>
           </form>
         )}
+        </div>
       </main>
 
       {/* CATEGORY MODAL */}
