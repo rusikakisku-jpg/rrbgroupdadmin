@@ -995,323 +995,354 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           </div>
         )}
 
-        {/* TAB 3: ADD / EDIT ARTICLE FORM */}
+        {/* TAB 3: ADD / EDIT ARTICLE FORM (SINGLE COLUMN) */}
         {(activeTab === 'add' || activeTab === 'edit') && (
-          <form onSubmit={handleSavePost} className="admin-card">
-            <div className="article-form-grid">
-              {/* Left Column: Title & Content */}
+          <form onSubmit={handleSavePost} className="admin-card" style={{ maxWidth: '960px', margin: '0 auto 30px auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', borderBottom: '1px solid #334155', paddingBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
               <div>
-                <div className="form-group">
-                  <label className="form-label">Article Title *</label>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white', margin: 0 }}>
+                  {editId ? 'Edit Article Details' : 'Create & Publish New Article'}
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                  Fill in the article details, content, cover image, and SEO settings below.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => handleTabChange('list')}
+                style={{ fontSize: '0.85rem' }}
+              >
+                Cancel / Back to List
+              </button>
+            </div>
+
+            {/* 1. Article Title */}
+            <div className="form-group">
+              <label className="form-label">Article Title *</label>
+              <input
+                type="text"
+                required
+                className="form-control"
+                placeholder="e.g. RRB Group D Answer Key 2026 Direct Link Released"
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  if (!editId && !slug) {
+                    setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+                  }
+                }}
+              />
+            </div>
+
+            {/* 2. Custom Slug / Permalink */}
+            <div className="form-group">
+              <label className="form-label">Custom Slug / Permalink *</label>
+              <input
+                type="text"
+                required
+                className="form-control"
+                placeholder="rrb-group-d-answer-key-2026-link"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+              />
+            </div>
+
+            {/* 3. Category & Status Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+              <div>
+                <label className="form-label">Category *</label>
+                <select className="form-control" value={category} onChange={(e) => setCategory(e.target.value)}>
+                  {categoriesList.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="form-label">Publishing Status *</label>
+                <select className="form-control" value={status} onChange={(e: any) => setStatus(e.target.value)}>
+                  <option value="publish">Publish Immediately</option>
+                  <option value="draft">Save as Draft</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 4. Author Name & Tags Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+              <div>
+                <label className="form-label">Author Name</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Admin"
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="form-label">Tags / Keywords (comma separated)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. RRB Group D, Answer Key, Scorecard"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* 5. Cover Image Section (Dual Mode: Direct Upload & Image Link) */}
+            <div className="form-group" style={{ background: '#0f172a', padding: '18px', borderRadius: '12px', border: '1px solid #334155' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                <label className="form-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.92rem', color: '#f1f5f9' }}>
+                  <ImageIcon style={{ width: '18px', height: '18px', color: '#38bdf8' }} /> Cover Image
+                </label>
+                <div style={{ display: 'flex', background: '#1e293b', borderRadius: '8px', padding: '2px', border: '1px solid #334155' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCoverImageMode('url')}
+                    style={{
+                      padding: '5px 12px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      borderRadius: '6px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: coverImageMode === 'url' ? '#2563eb' : 'transparent',
+                      color: coverImageMode === 'url' ? '#ffffff' : '#94a3b8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <Link2 style={{ width: '13px', height: '13px' }} /> Image Link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCoverImageMode('upload')}
+                    style={{
+                      padding: '5px 12px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      borderRadius: '6px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      background: coverImageMode === 'upload' ? '#2563eb' : 'transparent',
+                      color: coverImageMode === 'upload' ? '#ffffff' : '#94a3b8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <Upload style={{ width: '13px', height: '13px' }} /> Direct Upload
+                  </button>
+                </div>
+              </div>
+
+              {coverImageMode === 'url' ? (
+                <input
+                  type="url"
+                  className="form-control"
+                  placeholder="https://upload.rrbgroupdanswerkey.com/uploads/cover.jpg"
+                  value={coverImage}
+                  onChange={(e) => setCoverImage(e.target.value)}
+                />
+              ) : (
+                <div>
                   <input
-                    type="text"
-                    required
-                    className="form-control"
-                    placeholder="e.g. RRB Group D Answer Key 2026 Direct Link Released"
-                    value={title}
-                    onChange={(e) => {
-                      setTitle(e.target.value);
-                      if (!editId && !slug) {
-                        setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
-                      }
+                    type="file"
+                    id="cover-file-input"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleImageFileUpload}
+                  />
+                  <label
+                    htmlFor="cover-file-input"
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '20px',
+                      border: '2px dashed #475569',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      background: '#1e293b',
+                      textAlign: 'center',
+                      color: '#94a3b8',
+                      fontSize: '0.88rem',
+                    }}
+                  >
+                    <Upload style={{ width: '28px', height: '28px', color: '#38bdf8', marginBottom: '8px' }} />
+                    <span style={{ fontWeight: 600, color: '#f1f5f9' }}>Click to Browse or Choose Image from Device</span>
+                    <span style={{ fontSize: '0.75rem', marginTop: '4px', color: '#64748b' }}>Supports PNG, JPG, WEBP up to 5MB</span>
+                  </label>
+                </div>
+              )}
+
+              {/* Live Preview */}
+              {coverImage && (
+                <div style={{ marginTop: '14px', position: 'relative', borderRadius: '10px', overflow: 'hidden', border: '1px solid #334155', background: '#1e293b' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={coverImage}
+                    alt="Cover Preview"
+                    style={{ width: '100%', maxHeight: '240px', objectFit: 'cover', display: 'block' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCoverImage('')}
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      background: 'rgba(239, 68, 68, 0.9)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '5px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    <Trash2 style={{ width: '13px', height: '13px' }} /> Remove Image
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 6. Short Excerpt / Summary */}
+            <div className="form-group">
+              <label className="form-label">Short Excerpt / Summary</label>
+              <textarea
+                rows={3}
+                className="form-control"
+                placeholder="Brief description of the article for cards, previews and search engines..."
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+              ></textarea>
+            </div>
+
+            {/* 7. Content Editor: TinyMCE Rich Text / Raw HTML */}
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                <label className="form-label" style={{ margin: 0 }}>Article Content (TinyMCE Rich Text / HTML) *</label>
+                <button
+                  type="button"
+                  onClick={() => setIsRawHtmlMode(!isRawHtmlMode)}
+                  style={{
+                    background: isRawHtmlMode ? '#334155' : 'rgba(59, 130, 246, 0.15)',
+                    color: isRawHtmlMode ? '#cbd5e1' : '#60a5fa',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '6px',
+                    padding: '5px 12px',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  {isRawHtmlMode ? (
+                    <>
+                      <Edit style={{ width: '14px', height: '14px' }} /> Switch to TinyMCE Visual Editor
+                    </>
+                  ) : (
+                    <>
+                      <Code style={{ width: '14px', height: '14px' }} /> Switch to Raw HTML Code
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {isRawHtmlMode ? (
+                <textarea
+                  rows={20}
+                  required
+                  className="form-control"
+                  placeholder="Write or paste article HTML content here..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  style={{ fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.5' }}
+                ></textarea>
+              ) : (
+                <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #334155' }}>
+                  <TinyEditor
+                    apiKey={tinymceApiKeyVal || 'no-api-key'}
+                    value={content}
+                    onEditorChange={(newContent) => setContent(newContent)}
+                    init={{
+                      height: 560,
+                      menubar: 'file edit view insert format tools table help',
+                      skin: 'oxide-dark',
+                      content_css: 'dark',
+                      plugins: [
+                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                        'insertdatetime', 'media', 'table', 'help', 'wordcount', 'directionality'
+                      ],
+                      toolbar: 'undo redo | blocks fontfamily fontsize | ' +
+                        'bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter ' +
+                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                        'table link image media | removeformat code fullscreen | help',
+                      content_style: 'body { font-family: Plus Jakarta Sans, system-ui, -apple-system, sans-serif; font-size: 15px; color: #e2e8f0; background-color: #0f172a; line-height: 1.65; padding: 14px; } a { color: #38bdf8; } table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; } th, td { border: 1px solid #334155; padding: 8px 12px; } th { background-color: #1e293b; color: #f8fafc; font-weight: bold; }',
+                      branding: false,
+                      promotion: false,
                     }}
                   />
                 </div>
+              )}
+            </div>
 
-                <div className="form-group">
-                  <label className="form-label">Custom Slug / Permalink *</label>
-                  <input
-                    type="text"
-                    required
-                    className="form-control"
-                    placeholder="rrb-group-d-answer-key-2026-link"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Short Excerpt / Summary</label>
-                  <textarea
-                    rows={3}
-                    className="form-control"
-                    placeholder="Brief description of the article for cards, previews and search engines..."
-                    value={excerpt}
-                    onChange={(e) => setExcerpt(e.target.value)}
-                  ></textarea>
-                </div>
-
-                {/* Content Editor: TinyMCE Rich Text / Raw HTML */}
-                <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                    <label className="form-label" style={{ margin: 0 }}>Article Content (TinyMCE Rich Text / HTML) *</label>
-                    <button
-                      type="button"
-                      onClick={() => setIsRawHtmlMode(!isRawHtmlMode)}
-                      style={{
-                        background: isRawHtmlMode ? '#334155' : 'rgba(59, 130, 246, 0.15)',
-                        color: isRawHtmlMode ? '#cbd5e1' : '#60a5fa',
-                        border: '1px solid rgba(59, 130, 246, 0.3)',
-                        borderRadius: '6px',
-                        padding: '4px 10px',
-                        fontSize: '0.78rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                      }}
-                    >
-                      {isRawHtmlMode ? (
-                        <>
-                          <Edit style={{ width: '13px', height: '13px' }} /> Switch to TinyMCE Visual Editor
-                        </>
-                      ) : (
-                        <>
-                          <Code style={{ width: '13px', height: '13px' }} /> Switch to Raw HTML Code
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {isRawHtmlMode ? (
-                    <textarea
-                      rows={18}
-                      required
-                      className="form-control"
-                      placeholder="Write or paste article HTML content here..."
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      style={{ fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.5' }}
-                    ></textarea>
-                  ) : (
-                    <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #334155' }}>
-                      <TinyEditor
-                        apiKey={tinymceApiKeyVal || 'no-api-key'}
-                        value={content}
-                        onEditorChange={(newContent) => setContent(newContent)}
-                        init={{
-                          height: 520,
-                          menubar: 'file edit view insert format tools table help',
-                          skin: 'oxide-dark',
-                          content_css: 'dark',
-                          plugins: [
-                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                            'insertdatetime', 'media', 'table', 'help', 'wordcount', 'directionality'
-                          ],
-                          toolbar: 'undo redo | blocks fontfamily fontsize | ' +
-                            'bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter ' +
-                            'alignright alignjustify | bullist numlist outdent indent | ' +
-                            'table link image media | removeformat code fullscreen | help',
-                          content_style: 'body { font-family: Plus Jakarta Sans, system-ui, -apple-system, sans-serif; font-size: 15px; color: #e2e8f0; background-color: #0f172a; line-height: 1.65; padding: 12px; } a { color: #38bdf8; } table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; } th, td { border: 1px solid #334155; padding: 8px 12px; } th { background-color: #1e293b; color: #f8fafc; font-weight: bold; }',
-                          branding: false,
-                          promotion: false,
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
+            {/* 8. SEO Meta Settings Box */}
+            <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
+              <h4 style={{ fontSize: '1rem', color: 'white', marginTop: 0, marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Globe style={{ width: '16px', height: '16px', color: '#38bdf8' }} /> SEO Meta Settings (Optional)
+              </h4>
+              <div className="form-group">
+                <label className="form-label">Meta Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="SEO Title (leave empty to use article title)..."
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
+                />
               </div>
-
-              {/* Right Column: Settings, Cover Image Upload/Link, Tags, Author & SEO */}
-              <div>
-                <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
-                  <h4 style={{ fontSize: '1rem', color: 'white', marginTop: 0, marginBottom: '15px' }}>Publish Settings</h4>
-                  
-                  <div className="form-group">
-                    <label className="form-label">Category</label>
-                    <select className="form-control" value={category} onChange={(e) => setCategory(e.target.value)}>
-                      {categoriesList.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Status</label>
-                    <select className="form-control" value={status} onChange={(e: any) => setStatus(e.target.value)}>
-                      <option value="publish">Publish Immediately</option>
-                      <option value="draft">Save as Draft</option>
-                    </select>
-                  </div>
-
-                  {/* Cover Image Section (Dual Option: Direct Upload & Image Link) */}
-                  <div className="form-group" style={{ background: '#1e293b', padding: '16px', borderRadius: '10px', border: '1px solid #334155' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                      <label className="form-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <ImageIcon style={{ width: '16px', height: '16px', color: '#38bdf8' }} /> Cover Image
-                      </label>
-                      <div style={{ display: 'flex', background: '#0f172a', borderRadius: '8px', padding: '2px', border: '1px solid #334155' }}>
-                        <button
-                          type="button"
-                          onClick={() => setCoverImageMode('url')}
-                          style={{
-                            padding: '4px 10px',
-                            fontSize: '0.78rem',
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            background: coverImageMode === 'url' ? '#2563eb' : 'transparent',
-                            color: coverImageMode === 'url' ? '#ffffff' : '#94a3b8',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                          }}
-                        >
-                          <Link2 style={{ width: '13px', height: '13px' }} /> Image Link
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCoverImageMode('upload')}
-                          style={{
-                            padding: '4px 10px',
-                            fontSize: '0.78rem',
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            background: coverImageMode === 'upload' ? '#2563eb' : 'transparent',
-                            color: coverImageMode === 'upload' ? '#ffffff' : '#94a3b8',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                          }}
-                        >
-                          <Upload style={{ width: '13px', height: '13px' }} /> Direct Upload
-                        </button>
-                      </div>
-                    </div>
-
-                    {coverImageMode === 'url' ? (
-                      <input
-                        type="url"
-                        className="form-control"
-                        placeholder="https://upload.rrbgroupdanswerkey.com/..."
-                        value={coverImage}
-                        onChange={(e) => setCoverImage(e.target.value)}
-                      />
-                    ) : (
-                      <div>
-                        <input
-                          type="file"
-                          id="cover-file-input"
-                          accept="image/*"
-                          style={{ display: 'none' }}
-                          onChange={handleImageFileUpload}
-                        />
-                        <label
-                          htmlFor="cover-file-input"
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '16px',
-                            border: '2px dashed #475569',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            background: '#0f172a',
-                            textAlign: 'center',
-                            color: '#94a3b8',
-                            fontSize: '0.85rem',
-                          }}
-                        >
-                          <Upload style={{ width: '24px', height: '24px', color: '#38bdf8', marginBottom: '6px' }} />
-                          <span style={{ fontWeight: 600, color: '#f1f5f9' }}>Click to Browse or Choose Image</span>
-                          <span style={{ fontSize: '0.75rem', marginTop: '2px' }}>PNG, JPG, WEBP up to 5MB</span>
-                        </label>
-                      </div>
-                    )}
-
-                    {/* Live Preview */}
-                    {coverImage && (
-                      <div style={{ marginTop: '12px', position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={coverImage}
-                          alt="Cover Preview"
-                          style={{ width: '100%', maxHeight: '160px', objectFit: 'cover', display: 'block' }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setCoverImage('')}
-                          style={{
-                            position: 'absolute',
-                            top: '8px',
-                            right: '8px',
-                            background: 'rgba(239, 68, 68, 0.85)',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '6px',
-                            padding: '4px 8px',
-                            fontSize: '0.75rem',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                          }}
-                        >
-                          <Trash2 style={{ width: '12px', height: '12px' }} /> Remove
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Tags / Keywords</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. RRB Group D, Answer Key, Shift 1"
-                      value={tags}
-                      onChange={(e) => setTags(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Author Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Admin"
-                      value={authorName}
-                      onChange={(e) => setAuthorName(e.target.value)}
-                    />
-                  </div>
-
-                  <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '10px' }}>
-                    <Save style={{ width: '18px', height: '18px' }} /> {editId ? 'Update Article' : 'Publish Article'}
-                  </button>
-                </div>
-
-                {/* SEO Meta Box */}
-                <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '20px' }}>
-                  <h4 style={{ fontSize: '1rem', color: 'white', marginTop: 0, marginBottom: '15px' }}>SEO Meta Settings</h4>
-                  <div className="form-group">
-                    <label className="form-label">Meta Title</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="SEO Title..."
-                      value={metaTitle}
-                      onChange={(e) => setMetaTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Meta Description</label>
-                    <textarea
-                      rows={3}
-                      className="form-control"
-                      placeholder="SEO Description..."
-                      value={metaDesc}
-                      onChange={(e) => setMetaDesc(e.target.value)}
-                    ></textarea>
-                  </div>
-                </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">Meta Description</label>
+                <textarea
+                  rows={3}
+                  className="form-control"
+                  placeholder="SEO Meta Description (leave empty to use excerpt)..."
+                  value={metaDesc}
+                  onChange={(e) => setMetaDesc(e.target.value)}
+                ></textarea>
               </div>
+            </div>
+
+            {/* 9. Action Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', borderTop: '1px solid #334155', paddingTop: '20px' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => handleTabChange('list')}
+                style={{ padding: '12px 24px' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ padding: '12px 32px', fontSize: '0.95rem' }}
+              >
+                <Save style={{ width: '18px', height: '18px' }} /> {editId ? 'Update Article Now' : 'Publish Article Now'}
+              </button>
             </div>
           </form>
         )}
