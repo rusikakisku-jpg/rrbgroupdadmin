@@ -1273,7 +1273,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               ) : (
                 <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #334155' }}>
                   <TinyEditor
-                    apiKey={tinymceApiKeyVal || 'no-api-key'}
+                    tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.0/tinymce.min.js"
                     value={content}
                     onEditorChange={(newContent) => setContent(newContent)}
                     init={{
