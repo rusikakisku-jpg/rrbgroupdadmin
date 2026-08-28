@@ -157,6 +157,16 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setActiveTab(initialTab);
   }, [initialTab]);
 
+  // Client Authentication Guard
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isAuth = localStorage.getItem('admin_logged_in');
+      if (!isAuth) {
+        router.push('/');
+      }
+    }
+  }, [router]);
+
   // Load All Data
   const loadData = async () => {
     setLoading(true);
@@ -798,7 +808,13 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               <Globe style={{ width: '16px', height: '16px' }} /> View Live Website
             </a>
             <button
-              onClick={() => router.push('/')}
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('admin_logged_in');
+                  sessionStorage.removeItem('admin_token');
+                }
+                router.push('/');
+              }}
               className="btn"
               style={{
                 background: 'rgba(239, 68, 68, 0.15)',
@@ -1822,22 +1838,27 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
               <div className="form-group">
                 <label className="form-label">TinyMCE API Key</label>
-                <input type="text" className="form-control" value={tinymceApiKeyVal} onChange={(e) => setTinymceApiKeyVal(e.target.value)} />
+                <input type="text" className="form-control" placeholder="TinyMCE Cloud Key (optional)" value={tinymceApiKeyVal} onChange={(e) => setTinymceApiKeyVal(e.target.value)} />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Google Search Console Tag</label>
-                <input type="text" className="form-control" value={gscVal} onChange={(e) => setGscVal(e.target.value)} />
+                <label className="form-label">Google Analytics 4 Measurement ID</label>
+                <input type="text" className="form-control" placeholder="G-XXXXXXXXXX" value={gaVal} onChange={(e) => setGaVal(e.target.value)} />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Google Search Console Verification Tag</label>
+                <input type="text" className="form-control" placeholder="HTML tag or verification code" value={gscVal} onChange={(e) => setGscVal(e.target.value)} />
               </div>
 
               <div className="form-group">
                 <label className="form-label">OneSignal App ID</label>
-                <input type="text" className="form-control" value={oneSignalAppIdVal} onChange={(e) => setOneSignalAppIdVal(e.target.value)} />
+                <input type="text" className="form-control" placeholder="OneSignal App ID for push notifications" value={oneSignalAppIdVal} onChange={(e) => setOneSignalAppIdVal(e.target.value)} />
               </div>
 
               <div className="form-group">
                 <label className="form-label">OneSignal REST API Key</label>
-                <input type="text" className="form-control" value={oneSignalApiKeyVal} onChange={(e) => setOneSignalApiKeyVal(e.target.value)} />
+                <input type="text" className="form-control" placeholder="OneSignal REST API Key" value={oneSignalApiKeyVal} onChange={(e) => setOneSignalApiKeyVal(e.target.value)} />
               </div>
             </div>
 
