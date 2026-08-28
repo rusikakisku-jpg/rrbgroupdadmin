@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { Post, MenuItem, CommentItem, SubscriberItem } from '@/lib/types';
 import {
@@ -29,7 +30,24 @@ import {
   Search,
   ExternalLink,
   X,
+  Upload,
+  Link2,
+  Image as ImageIcon,
+  Code,
+  Edit,
 } from 'lucide-react';
+
+const TinyEditor = dynamic(
+  () => import('@tinymce/tinymce-react').then((mod) => mod.Editor),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ height: '320px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+        Loading TinyMCE Editor...
+      </div>
+    ),
+  }
+);
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://rrbgroupdanswerkey.rusikakisku.workers.dev';
 
@@ -64,10 +82,14 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [category, setCategory] = useState('Notification');
   const [status, setStatus] = useState<'publish' | 'draft'>('publish');
   const [coverImage, setCoverImage] = useState('');
+  const [coverImageMode, setCoverImageMode] = useState<'url' | 'upload'>('url');
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
+  const [tags, setTags] = useState('');
+  const [authorName, setAuthorName] = useState('Admin');
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDesc, setMetaDesc] = useState('');
+  const [isRawHtmlMode, setIsRawHtmlMode] = useState(false);
 
   // Categories & Menu Parsed
   const [categoriesList, setCategoriesList] = useState<string[]>([]);
@@ -250,8 +272,11 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             setCategory(targetPost.category);
             setStatus(targetPost.status);
             setCoverImage(targetPost.cover_image || '');
+            setCoverImageMode(targetPost.cover_image?.startsWith('data:') ? 'upload' : 'url');
             setExcerpt(targetPost.excerpt || '');
             setContent(targetPost.content || '');
+            setTags(targetPost.tags || '');
+            setAuthorName(targetPost.author_name || 'Admin');
             setMetaTitle(targetPost.title);
             setMetaDesc(targetPost.excerpt || '');
             setActiveTab('edit');
@@ -292,8 +317,11 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           setCategory(targetPost.category);
           setStatus(targetPost.status);
           setCoverImage(targetPost.cover_image || '');
+          setCoverImageMode(targetPost.cover_image?.startsWith('data:') ? 'upload' : 'url');
           setExcerpt(targetPost.excerpt || '');
           setContent(targetPost.content || '');
+          setTags(targetPost.tags || '');
+          setAuthorName(targetPost.author_name || 'Admin');
           setMetaTitle(targetPost.title);
           setMetaDesc(targetPost.excerpt || '');
           setActiveTab('edit');
@@ -307,13 +335,17 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setEditId(null);
     setTitle('');
     setSlug('');
-    setCategory('Notification');
+    setCategory(categoriesList[0] || 'Notification');
     setStatus('publish');
     setCoverImage('');
+    setCoverImageMode('url');
     setExcerpt('');
     setContent('');
+    setTags('');
+    setAuthorName('Admin');
     setMetaTitle('');
     setMetaDesc('');
+    setIsRawHtmlMode(false);
     setActiveTab('add');
     const targetUrl = '/dashboard/add/';
     if (typeof window !== 'undefined' && window.location.pathname !== targetUrl) {
@@ -328,15 +360,43 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setCategory(p.category);
     setStatus(p.status);
     setCoverImage(p.cover_image || '');
+    setCoverImageMode(p.cover_image?.startsWith('data:') ? 'upload' : 'url');
     setExcerpt(p.excerpt || '');
     setContent(p.content || '');
+    setTags(p.tags || '');
+    setAuthorName(p.author_name || 'Admin');
     setMetaTitle(p.title);
     setMetaDesc(p.excerpt || '');
+    setIsRawHtmlMode(false);
     setActiveTab('edit');
     const targetUrl = `/dashboard/edit/?id=${p.id}`;
     if (typeof window !== 'undefined') {
       window.history.pushState({ tab: 'edit', id: p.id }, '', targetUrl);
     }
+  };
+
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showError('Please select a valid image file (PNG, JPG, WEBP, etc.)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      showError('Image size exceeds 5MB limit. Please choose a smaller image.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setCoverImage(event.target.result as string);
+        showSuccess('Image selected & loaded for cover!');
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSavePost = async (e: React.FormEvent) => {
@@ -361,6 +421,8 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           cover_image: coverImage,
           excerpt,
           content,
+          tags,
+          author_name: authorName,
         }),
       });
 
@@ -936,7 +998,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         {/* TAB 3: ADD / EDIT ARTICLE FORM */}
         {(activeTab === 'add' || activeTab === 'edit') && (
           <form onSubmit={handleSavePost} className="admin-card">
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+            <div className="article-form-grid">
               {/* Left Column: Title & Content */}
               <div>
                 <div className="form-group">
@@ -973,27 +1035,86 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   <textarea
                     rows={3}
                     className="form-control"
-                    placeholder="Brief description of the article for cards and search engines..."
+                    placeholder="Brief description of the article for cards, previews and search engines..."
                     value={excerpt}
                     onChange={(e) => setExcerpt(e.target.value)}
                   ></textarea>
                 </div>
 
+                {/* Content Editor: TinyMCE Rich Text / Raw HTML */}
                 <div className="form-group">
-                  <label className="form-label">Article Content (HTML / Rich Text) *</label>
-                  <textarea
-                    rows={16}
-                    required
-                    className="form-control"
-                    placeholder="Write article HTML content here..."
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    style={{ fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.5' }}
-                  ></textarea>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                    <label className="form-label" style={{ margin: 0 }}>Article Content (TinyMCE Rich Text / HTML) *</label>
+                    <button
+                      type="button"
+                      onClick={() => setIsRawHtmlMode(!isRawHtmlMode)}
+                      style={{
+                        background: isRawHtmlMode ? '#334155' : 'rgba(59, 130, 246, 0.15)',
+                        color: isRawHtmlMode ? '#cbd5e1' : '#60a5fa',
+                        border: '1px solid rgba(59, 130, 246, 0.3)',
+                        borderRadius: '6px',
+                        padding: '4px 10px',
+                        fontSize: '0.78rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      {isRawHtmlMode ? (
+                        <>
+                          <Edit style={{ width: '13px', height: '13px' }} /> Switch to TinyMCE Visual Editor
+                        </>
+                      ) : (
+                        <>
+                          <Code style={{ width: '13px', height: '13px' }} /> Switch to Raw HTML Code
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {isRawHtmlMode ? (
+                    <textarea
+                      rows={18}
+                      required
+                      className="form-control"
+                      placeholder="Write or paste article HTML content here..."
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      style={{ fontFamily: 'monospace', fontSize: '0.9rem', lineHeight: '1.5' }}
+                    ></textarea>
+                  ) : (
+                    <div style={{ borderRadius: '10px', overflow: 'hidden', border: '1px solid #334155' }}>
+                      <TinyEditor
+                        apiKey={tinymceApiKeyVal || 'no-api-key'}
+                        value={content}
+                        onEditorChange={(newContent) => setContent(newContent)}
+                        init={{
+                          height: 520,
+                          menubar: 'file edit view insert format tools table help',
+                          skin: 'oxide-dark',
+                          content_css: 'dark',
+                          plugins: [
+                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                            'insertdatetime', 'media', 'table', 'help', 'wordcount', 'directionality'
+                          ],
+                          toolbar: 'undo redo | blocks fontfamily fontsize | ' +
+                            'bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter ' +
+                            'alignright alignjustify | bullist numlist outdent indent | ' +
+                            'table link image media | removeformat code fullscreen | help',
+                          content_style: 'body { font-family: Plus Jakarta Sans, system-ui, -apple-system, sans-serif; font-size: 15px; color: #e2e8f0; background-color: #0f172a; line-height: 1.65; padding: 12px; } a { color: #38bdf8; } table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; } th, td { border: 1px solid #334155; padding: 8px 12px; } th { background-color: #1e293b; color: #f8fafc; font-weight: bold; }',
+                          branding: false,
+                          promotion: false,
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Right Column: Settings & Publishing */}
+              {/* Right Column: Settings, Cover Image Upload/Link, Tags, Author & SEO */}
               <div>
                 <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
                   <h4 style={{ fontSize: '1rem', color: 'white', marginTop: 0, marginBottom: '15px' }}>Publish Settings</h4>
@@ -1015,14 +1136,149 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                     </select>
                   </div>
 
+                  {/* Cover Image Section (Dual Option: Direct Upload & Image Link) */}
+                  <div className="form-group" style={{ background: '#1e293b', padding: '16px', borderRadius: '10px', border: '1px solid #334155' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <label className="form-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <ImageIcon style={{ width: '16px', height: '16px', color: '#38bdf8' }} /> Cover Image
+                      </label>
+                      <div style={{ display: 'flex', background: '#0f172a', borderRadius: '8px', padding: '2px', border: '1px solid #334155' }}>
+                        <button
+                          type="button"
+                          onClick={() => setCoverImageMode('url')}
+                          style={{
+                            padding: '4px 10px',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                            borderRadius: '6px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            background: coverImageMode === 'url' ? '#2563eb' : 'transparent',
+                            color: coverImageMode === 'url' ? '#ffffff' : '#94a3b8',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          <Link2 style={{ width: '13px', height: '13px' }} /> Image Link
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCoverImageMode('upload')}
+                          style={{
+                            padding: '4px 10px',
+                            fontSize: '0.78rem',
+                            fontWeight: 600,
+                            borderRadius: '6px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            background: coverImageMode === 'upload' ? '#2563eb' : 'transparent',
+                            color: coverImageMode === 'upload' ? '#ffffff' : '#94a3b8',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          <Upload style={{ width: '13px', height: '13px' }} /> Direct Upload
+                        </button>
+                      </div>
+                    </div>
+
+                    {coverImageMode === 'url' ? (
+                      <input
+                        type="url"
+                        className="form-control"
+                        placeholder="https://upload.rrbgroupdanswerkey.com/..."
+                        value={coverImage}
+                        onChange={(e) => setCoverImage(e.target.value)}
+                      />
+                    ) : (
+                      <div>
+                        <input
+                          type="file"
+                          id="cover-file-input"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={handleImageFileUpload}
+                        />
+                        <label
+                          htmlFor="cover-file-input"
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '16px',
+                            border: '2px dashed #475569',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            background: '#0f172a',
+                            textAlign: 'center',
+                            color: '#94a3b8',
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          <Upload style={{ width: '24px', height: '24px', color: '#38bdf8', marginBottom: '6px' }} />
+                          <span style={{ fontWeight: 600, color: '#f1f5f9' }}>Click to Browse or Choose Image</span>
+                          <span style={{ fontSize: '0.75rem', marginTop: '2px' }}>PNG, JPG, WEBP up to 5MB</span>
+                        </label>
+                      </div>
+                    )}
+
+                    {/* Live Preview */}
+                    {coverImage && (
+                      <div style={{ marginTop: '12px', position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid #334155', background: '#0f172a' }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={coverImage}
+                          alt="Cover Preview"
+                          style={{ width: '100%', maxHeight: '160px', objectFit: 'cover', display: 'block' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setCoverImage('')}
+                          style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
+                            background: 'rgba(239, 68, 68, 0.85)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '4px 8px',
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          <Trash2 style={{ width: '12px', height: '12px' }} /> Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="form-group">
-                    <label className="form-label">Cover Image URL</label>
+                    <label className="form-label">Tags / Keywords</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="https://..."
-                      value={coverImage}
-                      onChange={(e) => setCoverImage(e.target.value)}
+                      placeholder="e.g. RRB Group D, Answer Key, Shift 1"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Author Name</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Admin"
+                      value={authorName}
+                      onChange={(e) => setAuthorName(e.target.value)}
                     />
                   </div>
 
