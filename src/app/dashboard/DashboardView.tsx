@@ -79,6 +79,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [editId, setEditId] = useState<number | null>(null);
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [category, setCategory] = useState('Notification');
   const [status, setStatus] = useState<'publish' | 'draft'>('publish');
   const [coverImage, setCoverImage] = useState('');
@@ -90,6 +91,30 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [metaTitle, setMetaTitle] = useState('');
   const [metaDesc, setMetaDesc] = useState('');
   const [isRawHtmlMode, setIsRawHtmlMode] = useState(false);
+
+  // SEO-friendly and unique slug generator
+  const generateSeoSlug = (rawTitle: string, currentId: number | null = editId, allPosts: Post[] = posts): string => {
+    if (!rawTitle) return '';
+    const cleanSlug = rawTitle
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    if (!cleanSlug) return 'article-' + Date.now();
+
+    let uniqueSlug = cleanSlug;
+    let counter = 2;
+    while (allPosts.some((p) => p.id !== currentId && p.slug === uniqueSlug)) {
+      uniqueSlug = `${cleanSlug}-${counter}`;
+      counter++;
+    }
+    return uniqueSlug;
+  };
 
   // Categories & Menu Parsed
   const [categoriesList, setCategoriesList] = useState<string[]>([]);
@@ -335,6 +360,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setEditId(null);
     setTitle('');
     setSlug('');
+    setIsSlugManuallyEdited(false);
     setCategory(categoriesList[0] || 'Notification');
     setStatus('publish');
     setCoverImage('');
@@ -357,6 +383,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setEditId(p.id);
     setTitle(p.title);
     setSlug(p.slug);
+    setIsSlugManuallyEdited(true);
     setCategory(p.category);
     setStatus(p.status);
     setCoverImage(p.cover_image || '');
@@ -406,7 +433,23 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       return;
     }
 
-    const finalSlug = slug.trim() || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    // 1. Generate guaranteed unique & SEO-friendly slug
+    let rawSlug = slug.trim()
+      ? slug.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '')
+      : generateSeoSlug(title, editId, posts);
+
+    if (!rawSlug) rawSlug = 'article-' + Date.now();
+
+    let uniqueFinalSlug = rawSlug;
+    let counter = 2;
+    while (posts.some((p) => p.id !== editId && p.slug === uniqueFinalSlug)) {
+      uniqueFinalSlug = `${rawSlug}-${counter}`;
+      counter++;
+    }
+
+    // 2. SEO Fallbacks: Excerpt falls back to Meta Description or first 160 clean chars of content
+    const cleanContentText = content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+    const finalExcerpt = excerpt.trim() || metaDesc.trim() || cleanContentText.slice(0, 160);
 
     try {
       const res = await fetch(`${API_BASE}/api/admin/posts`, {
@@ -414,15 +457,15 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: editId || undefined,
-          title,
-          slug: finalSlug,
+          title: title.trim(),
+          slug: uniqueFinalSlug,
           category,
           status,
-          cover_image: coverImage,
-          excerpt,
+          cover_image: coverImage.trim(),
+          excerpt: finalExcerpt,
           content,
-          tags,
-          author_name: authorName,
+          tags: tags.trim(),
+          author_name: authorName.trim() || 'Admin',
         }),
       });
 
@@ -1027,25 +1070,62 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                 placeholder="e.g. RRB Group D Answer Key 2026 Direct Link Released"
                 value={title}
                 onChange={(e) => {
-                  setTitle(e.target.value);
-                  if (!editId && !slug) {
-                    setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+                  const newTitle = e.target.value;
+                  setTitle(newTitle);
+                  if (!isSlugManuallyEdited) {
+                    setSlug(generateSeoSlug(newTitle, editId, posts));
+                  }
+                  if (!metaTitle || metaTitle === title) {
+                    setMetaTitle(newTitle);
                   }
                 }}
               />
             </div>
 
-            {/* 2. Custom Slug / Permalink */}
+            {/* 2. Custom Slug / Permalink (Auto Generated, SEO Friendly & Unique) */}
             <div className="form-group">
-              <label className="form-label">Custom Slug / Permalink *</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                <label className="form-label" style={{ margin: 0 }}>Custom Slug / Permalink * (Auto Generated & SEO Friendly)</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const autoSlug = generateSeoSlug(title, editId, posts);
+                    setSlug(autoSlug);
+                    setIsSlugManuallyEdited(false);
+                    showSuccess('SEO Slug re-generated from title!');
+                  }}
+                  style={{
+                    background: 'rgba(56, 189, 248, 0.1)',
+                    border: '1px solid rgba(56, 189, 248, 0.3)',
+                    color: '#38bdf8',
+                    padding: '3px 10px',
+                    borderRadius: '6px',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  ⚡ Re-sync with Title
+                </button>
+              </div>
               <input
                 type="text"
                 required
                 className="form-control"
                 placeholder="rrb-group-d-answer-key-2026-link"
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                onChange={(e) => {
+                  setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'));
+                  setIsSlugManuallyEdited(true);
+                }}
               />
+              <div style={{ fontSize: '0.8rem', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                {posts.some((p) => p.id !== editId && p.slug === slug) ? (
+                  <span style={{ color: '#f87171' }}>⚠️ Slug already used by another article. A unique counter will be automatically appended upon saving.</span>
+                ) : (
+                  <span style={{ color: '#34d399' }}>✓ Live URL Preview: <code style={{ color: '#60a5fa', background: '#0f172a', padding: '2px 6px', borderRadius: '4px' }}>https://rrbgroupdanswerkey.pages.dev/{slug || 'your-slug'}</code></span>
+                )}
+              </div>
             </div>
 
             {/* 3. Category & Status Row */}
