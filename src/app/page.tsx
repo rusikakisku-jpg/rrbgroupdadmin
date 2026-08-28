@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import { KeyRound, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('admin');
@@ -44,13 +44,13 @@ export default function AdminLoginPage() {
           
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <div style={{ display: 'inline-flex', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', width: '56px', height: '56px', borderRadius: '50%', alignItems: 'center', justifyContent: 'center', marginBottom: '15px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-              <ShieldCheck style={{ width: '28px', height: '28px' }} />
+              <KeyRound style={{ width: '28px', height: '28px' }} />
             </div>
-            <h1 style={{ fontSize: '1.7rem', color: '#ffffff', fontWeight: 800, marginBottom: '6px', fontFamily: 'Outfit, sans-serif' }}>
-              AuraAdmin Login
+            <h1 style={{ fontSize: '1.65rem', color: '#ffffff', fontWeight: 800, marginBottom: '6px', fontFamily: 'Outfit, sans-serif', lineHeight: 1.25 }}>
+              RRB Group D Answer Key Login Portal
             </h1>
             <p style={{ fontSize: '0.88rem', color: '#94a3b8' }}>
-              Sign in securely to manage your RRB blog portal
+              Sign in securely to manage your RRB Group D Answer Key portal
             </p>
           </div>
 
