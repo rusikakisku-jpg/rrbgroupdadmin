@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { KeyRound, AlertCircle, ArrowRight } from 'lucide-react';
+import { AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('admin');
@@ -37,20 +37,27 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#f8fafc' }}>
-      <div style={{ width: '90%', maxWidth: '420px' }}>
+    <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#f8fafc', padding: '20px 16px', boxSizing: 'border-box' }}>
+      <div style={{ width: '100%', maxWidth: '420px', boxSizing: 'border-box' }}>
         
-        <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '40px 30px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4)' }}>
+        <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '36px 28px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4)', boxSizing: 'border-box' }}>
           
-          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-            <div style={{ display: 'inline-flex', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', width: '56px', height: '56px', borderRadius: '50%', alignItems: 'center', justifyContent: 'center', marginBottom: '15px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
-              <KeyRound style={{ width: '28px', height: '28px' }} />
+          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+            {/* Official Logo */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '16px' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://upload.rrbgroupdanswerkey.com/uploads/logo_1784561384_6a5e3ee8e7bad.png"
+                alt="RRB Group D Answer Key Logo"
+                style={{ maxWidth: '200px', width: '100%', height: 'auto', maxHeight: '75px', objectFit: 'contain', display: 'block' }}
+              />
             </div>
-            <h1 style={{ fontSize: '1.65rem', color: '#ffffff', fontWeight: 800, marginBottom: '6px', fontFamily: 'Outfit, sans-serif', lineHeight: 1.25 }}>
-              RRB Group D Answer Key Login Portal
+
+            <h1 style={{ fontSize: '1.6rem', color: '#ffffff', fontWeight: 800, marginBottom: '6px', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+              Login Portal
             </h1>
-            <p style={{ fontSize: '0.88rem', color: '#94a3b8' }}>
-              Sign in securely to manage your RRB Group D Answer Key portal
+            <p style={{ fontSize: '1.05rem', color: '#38bdf8', fontWeight: 700, margin: 0, fontFamily: 'Outfit, sans-serif' }}>
+              RRB Group D Answer Key
             </p>
           </div>
 
