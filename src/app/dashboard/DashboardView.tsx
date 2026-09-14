@@ -63,6 +63,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [loading, setLoading] = useState(true);
   const [successAlert, setSuccessAlert] = useState('');
   const [errorAlert, setErrorAlert] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Data states
   const [posts, setPosts] = useState<Post[]>([]);
@@ -273,6 +274,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const handleTabChange = (tab: TabType) => {
     setEditId(null);
     setActiveTab(tab);
+    setMobileMenuOpen(false);
     const targetUrl = tab === 'dashboard' ? '/dashboard/' : `/dashboard/${tab}/`;
     if (typeof window !== 'undefined' && window.location.pathname !== targetUrl) {
       window.history.pushState({ tab }, '', targetUrl);
@@ -383,6 +385,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setMetaDesc('');
     setIsRawHtmlMode(false);
     setActiveTab('add');
+    setMobileMenuOpen(false);
     const targetUrl = '/dashboard/add/';
     if (typeof window !== 'undefined' && window.location.pathname !== targetUrl) {
       window.history.pushState({ tab: 'add' }, '', targetUrl);
@@ -406,6 +409,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setMetaDesc(p.excerpt || '');
     setIsRawHtmlMode(false);
     setActiveTab('edit');
+    setMobileMenuOpen(false);
     const targetUrl = `/dashboard/edit/?id=${p.id}`;
     if (typeof window !== 'undefined') {
       window.history.pushState({ tab: 'edit', id: p.id }, '', targetUrl);
@@ -694,10 +698,20 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   return (
     <div className="admin-container">
       {/* SIDEBAR NAVIGATION */}
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-brand">
-          <KeyRound style={{ width: '26px', height: '26px', color: '#38bdf8' }} />
-          <span>RRB Admin</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <KeyRound style={{ width: '26px', height: '26px', color: '#38bdf8' }} />
+            <span>RRB Admin</span>
+          </div>
+          <button
+            type="button"
+            className="mobile-close-btn"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close navigation menu"
+          >
+            <X style={{ width: '20px', height: '20px' }} />
+          </button>
         </div>
 
         <ul className="sidebar-menu">
@@ -776,28 +790,43 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         </ul>
       </aside>
 
+      {/* MOBILE BACKDROP */}
+      {mobileMenuOpen && (
+        <div className="sidebar-backdrop" onClick={() => setMobileMenuOpen(false)} />
+      )}
+
       {/* MAIN CONTENT AREA */}
       <main className="admin-main">
         {/* HEADER BAR */}
         <div className="admin-header">
-          <div>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'white', margin: 0 }}>
-              {activeTab === 'dashboard' && 'Dashboard Overview'}
-              {activeTab === 'list' && 'Articles Manager'}
-              {activeTab === 'add' && 'Create New Article'}
-              {activeTab === 'edit' && 'Edit Article'}
-              {activeTab === 'categories' && 'Categories Management'}
-              {activeTab === 'menu' && 'Header Menu Management'}
-              {activeTab === 'comments' && 'Comments Moderation'}
-              {activeTab === 'subscribers' && 'Subscribers List'}
-              {activeTab === 'settings' && 'Website Settings'}
-            </h1>
-            <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
-              Manage your Railway Recruitment Board portal content & configuration
-            </p>
+          <div className="admin-header-title-wrap">
+            <button
+              type="button"
+              className="mobile-menu-toggle-btn"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle navigation menu"
+            >
+              <MenuIcon style={{ width: '22px', height: '22px' }} />
+            </button>
+            <div>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'white', margin: 0 }}>
+                {activeTab === 'dashboard' && 'Dashboard Overview'}
+                {activeTab === 'list' && 'Articles Manager'}
+                {activeTab === 'add' && 'Create New Article'}
+                {activeTab === 'edit' && 'Edit Article'}
+                {activeTab === 'categories' && 'Categories Management'}
+                {activeTab === 'menu' && 'Header Menu Management'}
+                {activeTab === 'comments' && 'Comments Moderation'}
+                {activeTab === 'subscribers' && 'Subscribers List'}
+                {activeTab === 'settings' && 'Website Settings'}
+              </h1>
+              <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                Manage your Railway Recruitment Board portal content & configuration
+              </p>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div className="admin-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <a
               href="https://rrbgroupdanswerkey.pages.dev"
               target="_blank"
@@ -805,7 +834,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               className="btn btn-secondary"
               style={{ fontSize: '0.85rem' }}
             >
-              <Globe style={{ width: '16px', height: '16px' }} /> View Live Website
+              <Globe style={{ width: '16px', height: '16px' }} /> <span className="btn-label-text">View Live Website</span>
             </a>
             <button
               onClick={() => {
@@ -822,7 +851,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                 border: '1px solid rgba(239, 68, 68, 0.3)',
               }}
             >
-              <LogOut style={{ width: '16px', height: '16px' }} /> Logout
+              <LogOut style={{ width: '16px', height: '16px' }} /> <span className="btn-label-text">Logout</span>
             </button>
           </div>
         </div>
@@ -896,7 +925,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             </div>
 
             {/* Quick Overview Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '25px' }}>
+            <div className="dashboard-overview-grid" style={{ display: 'grid', gap: '25px' }}>
               <div className="admin-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                   <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Recent Articles</h3>
@@ -962,25 +991,25 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         {activeTab === 'list' && (
           <div className="admin-card">
             {/* Filter Bar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap', marginBottom: '25px' }}>
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', flex: 1 }}>
-                <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+            <div className="articles-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap', marginBottom: '25px' }}>
+              <div className="articles-filter-controls" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', flex: 1 }}>
+                <div className="search-input-wrapper" style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
                   <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#94a3b8' }} />
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control search-input"
                     placeholder="Search articles..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={{ paddingLeft: '38px' }}
                   />
                 </div>
-                <select className="form-control" value={statusFilter} onChange={(e: any) => setStatusFilter(e.target.value)} style={{ width: '140px' }}>
+                <select className="form-control filter-select filter-status" value={statusFilter} onChange={(e: any) => setStatusFilter(e.target.value)}>
                   <option value="all">All Status</option>
                   <option value="publish">Published</option>
                   <option value="draft">Draft</option>
                 </select>
-                <select className="form-control" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} style={{ width: '160px' }}>
+                <select className="form-control filter-select filter-category" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
                   <option value="all">All Categories</option>
                   {categoriesList.map((c) => (
                     <option key={c} value={c}>{c}</option>
@@ -988,7 +1017,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                 </select>
               </div>
 
-              <button className="btn btn-primary" onClick={handleOpenAddForm}>
+              <button className="btn btn-primary add-article-btn" onClick={handleOpenAddForm}>
                 <PlusCircle style={{ width: '18px', height: '18px' }} /> Add Article
               </button>
             </div>
@@ -1423,7 +1452,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             </div>
 
             {/* 9. Action Buttons */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', borderTop: '1px solid #334155', paddingTop: '20px' }}>
+            <div className="form-actions-row" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', borderTop: '1px solid #334155', paddingTop: '20px' }}>
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -1735,7 +1764,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               General & SEO Configurations
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="settings-grid" style={{ display: 'grid', gap: '20px' }}>
               <div className="form-group">
                 <label className="form-label">Site Title</label>
                 <input
@@ -1809,7 +1838,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               </select>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="settings-grid" style={{ display: 'grid', gap: '20px' }}>
               <div className="form-group">
                 <label className="form-label">Header Ad Code (Script)</label>
                 <textarea rows={3} className="form-control" value={adHeaderVal} onChange={(e) => setAdHeaderVal(e.target.value)} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}></textarea>
@@ -1835,7 +1864,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               Integrations, API Keys & Robots.txt
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div className="settings-grid" style={{ display: 'grid', gap: '20px' }}>
               <div className="form-group">
                 <label className="form-label">TinyMCE API Key</label>
                 <input type="text" className="form-control" placeholder="TinyMCE Cloud Key (optional)" value={tinymceApiKeyVal} onChange={(e) => setTinymceApiKeyVal(e.target.value)} />
@@ -1867,7 +1896,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               <textarea rows={4} className="form-control" value={robotsTxtVal} onChange={(e) => setRobotsTxtVal(e.target.value)} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}></textarea>
             </div>
 
-            <div style={{ marginTop: '25px', display: 'flex', justifyContent: 'flex-end' }}>
+            <div className="settings-submit-row" style={{ marginTop: '25px', display: 'flex', justifyContent: 'flex-end' }}>
               <button type="submit" className="btn btn-primary" style={{ padding: '12px 30px' }}>
                 <Save style={{ width: '18px', height: '18px' }} /> Save All Settings
               </button>

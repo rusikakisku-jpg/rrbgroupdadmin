@@ -37,10 +37,10 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div style={{ backgroundColor: '#0f172a', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#f8fafc', padding: '20px 16px', boxSizing: 'border-box' }}>
+    <div className="login-container" style={{ backgroundColor: '#0f172a', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#f8fafc', padding: '20px 16px', boxSizing: 'border-box' }}>
       <div style={{ width: '100%', maxWidth: '420px', boxSizing: 'border-box' }}>
         
-        <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '36px 28px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4)', boxSizing: 'border-box' }}>
+        <div className="login-card" style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '36px 28px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.4)', boxSizing: 'border-box' }}>
           
           <div style={{ textAlign: 'center', marginBottom: '28px' }}>
             {/* Official Logo */}
