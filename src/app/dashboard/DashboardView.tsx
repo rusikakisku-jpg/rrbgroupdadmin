@@ -790,6 +790,33 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             </button>
           </li>
         </ul>
+
+        {/* SIDEBAR FOOTER ACTIONS (View Live Website & Logout) */}
+        <div className="sidebar-footer-actions">
+          <a
+            href="https://rrbgroupdanswerkey.pages.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sidebar-action-btn view-site-btn"
+          >
+            <Globe style={{ width: '16px', height: '16px' }} />
+            <span>View Live Website</span>
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('admin_logged_in');
+                sessionStorage.removeItem('admin_token');
+              }
+              router.push('/');
+            }}
+            className="sidebar-action-btn logout-btn"
+          >
+            <LogOut style={{ width: '16px', height: '16px' }} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       {/* MOBILE BACKDROP */}
@@ -1477,7 +1504,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         {/* TAB 4: CATEGORIES MANAGEMENT */}
         {activeTab === 'categories' && (
           <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="admin-card-header" style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Categories Overview</h3>
               <button
                 className="btn btn-primary"
@@ -1559,7 +1586,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         {/* TAB 5: HEADER MENU MANAGEMENT */}
         {activeTab === 'menu' && (
           <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="admin-card-header" style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Header Navigation Menu</h3>
               <button
                 className="btn btn-primary"
