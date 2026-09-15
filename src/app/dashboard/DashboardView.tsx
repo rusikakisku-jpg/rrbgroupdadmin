@@ -41,6 +41,8 @@ import {
   Calendar,
   RotateCcw,
   ArrowLeft,
+  FolderOpen,
+  Navigation,
 } from 'lucide-react';
 
 const TinyEditor = dynamic(
@@ -143,6 +145,11 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [menuInputTitle, setMenuInputTitle] = useState('');
   const [menuInputUrl, setMenuInputUrl] = useState('');
   const [menuEditIndex, setMenuEditIndex] = useState<number | null>(null);
+
+  // Search & Filter States for Categories & Menu Tabs
+  const [catSearch, setCatSearch] = useState('');
+  const [catStatusFilter, setCatStatusFilter] = useState<'all' | 'visible' | 'hidden'>('all');
+  const [menuSearch, setMenuSearch] = useState('');
 
   // Settings form states
   const [siteTitleVal, setSiteTitleVal] = useState('RRB Group D Answer Key');
@@ -2000,65 +2007,327 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           </form>
         )}
 
-        {/* TAB 4: CATEGORIES MANAGEMENT */}
+        {/* TAB 4: CATEGORIES MANAGEMENT (PREMIUM ALL-DEVICE RESPONSIVE) */}
         {activeTab === 'categories' && (
-          <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="admin-card-header" style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Categories Overview</h3>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  setCatModalMode('add');
-                  setCatInputName('');
-                  setShowCatModal(true);
-                }}
-              >
-                <PlusCircle style={{ width: '16px', height: '16px' }} /> Add New Category
-              </button>
+          <div className="categories-page-container">
+            {/* 1. Header Toolbar */}
+            <div className="categories-top-bar">
+              <div className="categories-top-bar-left">
+                <div className="categories-header-icon-wrap">
+                  <FolderOpen style={{ width: '22px', height: '22px', color: '#38bdf8' }} />
+                </div>
+                <div>
+                  <h3 className="categories-header-title">Categories Management</h3>
+                  <p className="categories-header-subtitle">
+                    Organize, classify, and control article category visibility across your portal
+                  </p>
+                </div>
+              </div>
+
+              <div className="categories-top-bar-right">
+                <button
+                  type="button"
+                  className="btn btn-primary categories-add-btn"
+                  onClick={() => {
+                    setCatModalMode('add');
+                    setCatInputName('');
+                    setShowCatModal(true);
+                  }}
+                >
+                  <PlusCircle style={{ width: '16px', height: '16px' }} />
+                  <span>Add New Category</span>
+                </button>
+              </div>
             </div>
 
-            <div className="table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Category Name</th>
-                    <th>Articles Count</th>
-                    <th>Visibility Status</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categoriesList.map((cat) => {
-                    const count = posts.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
-                    const isHidden = hiddenCategoriesList.some((c) => c.toLowerCase() === cat.toLowerCase());
-                    return (
-                      <tr key={cat}>
-                        <td style={{ fontWeight: 700, color: 'white' }}>{cat}</td>
-                        <td>
-                          <span style={{ background: '#0f172a', color: '#38bdf8', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, border: '1px solid #334155' }}>
-                            {count} articles
-                          </span>
-                        </td>
-                        <td>
-                          {isHidden ? (
-                            <span className="status-badge draft"><EyeOff style={{ width: '12px', height: '12px' }} /> Hidden</span>
-                          ) : (
-                            <span className="status-badge publish"><Eye style={{ width: '12px', height: '12px' }} /> Visible</span>
-                          )}
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            {/* 2. Metrics Strip */}
+            <div className="categories-metrics-strip">
+              <button
+                type="button"
+                className={`cat-metric-pill ${catStatusFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setCatStatusFilter('all')}
+              >
+                <span className="cat-metric-label">All Categories</span>
+                <span className="cat-metric-badge all">{categoriesList.length}</span>
+              </button>
+
+              <button
+                type="button"
+                className={`cat-metric-pill ${catStatusFilter === 'visible' ? 'active' : ''}`}
+                onClick={() => setCatStatusFilter('visible')}
+              >
+                <Eye style={{ width: '13px', height: '13px', color: '#34d399' }} />
+                <span className="cat-metric-label">Visible</span>
+                <span className="cat-metric-badge visible">
+                  {categoriesList.filter((c) => !hiddenCategoriesList.some((h) => h.toLowerCase() === c.toLowerCase())).length}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                className={`cat-metric-pill ${catStatusFilter === 'hidden' ? 'active' : ''}`}
+                onClick={() => setCatStatusFilter('hidden')}
+              >
+                <EyeOff style={{ width: '13px', height: '13px', color: '#f87171' }} />
+                <span className="cat-metric-label">Hidden</span>
+                <span className="cat-metric-badge hidden">
+                  {categoriesList.filter((c) => hiddenCategoriesList.some((h) => h.toLowerCase() === c.toLowerCase())).length}
+                </span>
+              </button>
+
+              <div className="cat-metric-stat-box">
+                <span className="cat-metric-stat-label">Total Articles Linked:</span>
+                <span className="cat-metric-stat-val">
+                  {posts.filter((p) => categoriesList.some((c) => c.toLowerCase() === p.category.toLowerCase())).length}
+                </span>
+              </div>
+            </div>
+
+            {/* 3. Search & Filter Bar */}
+            <div className="categories-search-bar">
+              <div className="cat-search-input-wrap">
+                <Search style={{ width: '16px', height: '16px', color: '#94a3b8' }} />
+                <input
+                  type="text"
+                  className="cat-search-input"
+                  placeholder="Search categories by name..."
+                  value={catSearch}
+                  onChange={(e) => setCatSearch(e.target.value)}
+                />
+                {catSearch && (
+                  <button
+                    type="button"
+                    className="cat-search-clear-btn"
+                    onClick={() => setCatSearch('')}
+                    title="Clear search"
+                  >
+                    <X style={{ width: '14px', height: '14px' }} />
+                  </button>
+                )}
+              </div>
+
+              {(catSearch || catStatusFilter !== 'all') && (
+                <button
+                  type="button"
+                  className="cat-reset-filters-btn"
+                  onClick={() => {
+                    setCatSearch('');
+                    setCatStatusFilter('all');
+                  }}
+                >
+                  <RotateCcw style={{ width: '13px', height: '13px' }} />
+                  <span>Reset Filters</span>
+                </button>
+              )}
+            </div>
+
+            {/* 4. Table / Cards Content */}
+            {(() => {
+              const filteredCats = categoriesList.filter((cat) => {
+                const matchesSearch = !catSearch.trim() || cat.toLowerCase().includes(catSearch.trim().toLowerCase());
+                const isHidden = hiddenCategoriesList.some((c) => c.toLowerCase() === cat.toLowerCase());
+                const matchesStatus =
+                  catStatusFilter === 'all' ||
+                  (catStatusFilter === 'visible' && !isHidden) ||
+                  (catStatusFilter === 'hidden' && isHidden);
+                return matchesSearch && matchesStatus;
+              });
+
+              if (filteredCats.length === 0) {
+                return (
+                  <div className="categories-empty-card">
+                    <div className="categories-empty-icon">
+                      <FolderOpen style={{ width: '36px', height: '36px', color: '#64748b' }} />
+                    </div>
+                    <h4 className="categories-empty-title">No Categories Found</h4>
+                    <p className="categories-empty-desc">
+                      {catSearch
+                        ? `No category matches "${catSearch}". Try another keyword or clear filters.`
+                        : 'No categories created yet. Click "Add New Category" above to organize your articles.'}
+                    </p>
+                    {catSearch ? (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          setCatSearch('');
+                          setCatStatusFilter('all');
+                        }}
+                      >
+                        Clear Search
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => {
+                          setCatModalMode('add');
+                          setCatInputName('');
+                          setShowCatModal(true);
+                        }}
+                      >
+                        <PlusCircle style={{ width: '14px', height: '14px' }} />
+                        <span>Add First Category</span>
+                      </button>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="categories-content-container">
+                  {/* Desktop / Tablet Table */}
+                  <div className="categories-desktop-table-wrap">
+                    <table className="categories-table">
+                      <thead>
+                        <tr>
+                          <th>Category Name</th>
+                          <th>Articles Count</th>
+                          <th>Public Visibility</th>
+                          <th style={{ textAlign: 'right' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredCats.map((cat) => {
+                          const count = posts.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
+                          const isHidden = hiddenCategoriesList.some((c) => c.toLowerCase() === cat.toLowerCase());
+                          return (
+                            <tr key={cat} className="categories-table-row">
+                              <td>
+                                <div className="cat-name-cell">
+                                  <div className="cat-avatar-icon">
+                                    <FolderOpen style={{ width: '15px', height: '15px', color: isHidden ? '#94a3b8' : '#38bdf8' }} />
+                                  </div>
+                                  <div>
+                                    <span className="cat-name-text">{cat}</span>
+                                    <div className="cat-slug-sub">
+                                      category: <code>{cat.toLowerCase().replace(/\s+/g, '-')}</code>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>
+                                <span className={`cat-articles-pill ${count > 0 ? 'has-articles' : 'empty-articles'}`}>
+                                  <FileText style={{ width: '12px', height: '12px' }} />
+                                  <span>{count} {count === 1 ? 'Article' : 'Articles'}</span>
+                                </span>
+                              </td>
+                              <td>
+                                {isHidden ? (
+                                  <span className="status-badge draft">
+                                    <EyeOff style={{ width: '12px', height: '12px' }} />
+                                    <span>Hidden</span>
+                                  </span>
+                                ) : (
+                                  <span className="status-badge publish">
+                                    <Eye style={{ width: '12px', height: '12px' }} />
+                                    <span>Visible</span>
+                                  </span>
+                                )}
+                              </td>
+                              <td style={{ textAlign: 'right' }}>
+                                <div className="cat-actions-row">
+                                  <button
+                                    type="button"
+                                    className={`btn-icon ${isHidden ? 'cat-btn-show' : 'cat-btn-hide'}`}
+                                    title={isHidden ? 'Make Category Visible' : 'Hide Category from Visitors'}
+                                    onClick={() => handleToggleCategoryVisibility(cat)}
+                                  >
+                                    {isHidden ? (
+                                      <Eye style={{ width: '15px', height: '15px' }} />
+                                    ) : (
+                                      <EyeOff style={{ width: '15px', height: '15px' }} />
+                                    )}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-icon btn-edit"
+                                    title="Edit Category Name"
+                                    onClick={() => {
+                                      setCatModalMode('edit');
+                                      setCatOriginalName(cat);
+                                      setCatInputName(cat);
+                                      setShowCatModal(true);
+                                    }}
+                                  >
+                                    <Edit3 style={{ width: '15px', height: '15px' }} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-icon btn-delete"
+                                    title="Delete Category"
+                                    onClick={() => handleDeleteCategory(cat)}
+                                  >
+                                    <Trash2 style={{ width: '15px', height: '15px' }} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Touch Cards */}
+                  <div className="categories-mobile-cards-wrap">
+                    {filteredCats.map((cat) => {
+                      const count = posts.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
+                      const isHidden = hiddenCategoriesList.some((c) => c.toLowerCase() === cat.toLowerCase());
+                      return (
+                        <div key={cat} className="cat-mobile-card">
+                          <div className="cat-mobile-card-header">
+                            <div className="cat-mobile-title-block">
+                              <div className="cat-avatar-icon">
+                                <FolderOpen style={{ width: '16px', height: '16px', color: isHidden ? '#94a3b8' : '#38bdf8' }} />
+                              </div>
+                              <div>
+                                <h4 className="cat-mobile-title">{cat}</h4>
+                                <span className="cat-mobile-slug">category/{cat.toLowerCase().replace(/\s+/g, '-')}</span>
+                              </div>
+                            </div>
+
+                            {isHidden ? (
+                              <span className="status-badge draft">
+                                <EyeOff style={{ width: '11px', height: '11px' }} />
+                                <span>Hidden</span>
+                              </span>
+                            ) : (
+                              <span className="status-badge publish">
+                                <Eye style={{ width: '11px', height: '11px' }} />
+                                <span>Visible</span>
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="cat-mobile-card-meta">
+                            <span className={`cat-articles-pill ${count > 0 ? 'has-articles' : 'empty-articles'}`}>
+                              <FileText style={{ width: '12px', height: '12px' }} />
+                              <span>{count} {count === 1 ? 'Article' : 'Articles'} Linked</span>
+                            </span>
+                          </div>
+
+                          <div className="cat-mobile-card-actions">
                             <button
-                              className="btn-icon"
-                              title={isHidden ? 'Show Category' : 'Hide Category'}
+                              type="button"
+                              className={`cat-mobile-action-btn ${isHidden ? 'show' : 'hide'}`}
                               onClick={() => handleToggleCategoryVisibility(cat)}
-                              style={{ background: isHidden ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: isHidden ? '#4ade80' : '#f87171' }}
                             >
-                              {isHidden ? <Eye style={{ width: '15px', height: '15px' }} /> : <EyeOff style={{ width: '15px', height: '15px' }} />}
+                              {isHidden ? (
+                                <>
+                                  <Eye style={{ width: '14px', height: '14px' }} />
+                                  <span>Make Visible</span>
+                                </>
+                              ) : (
+                                <>
+                                  <EyeOff style={{ width: '14px', height: '14px' }} />
+                                  <span>Hide</span>
+                                </>
+                              )}
                             </button>
                             <button
-                              className="btn-icon btn-edit"
-                              title="Edit Category Name"
+                              type="button"
+                              className="cat-mobile-action-btn edit"
                               onClick={() => {
                                 setCatModalMode('edit');
                                 setCatOriginalName(cat);
@@ -2066,105 +2335,411 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                                 setShowCatModal(true);
                               }}
                             >
-                              <Edit3 style={{ width: '15px', height: '15px' }} />
+                              <Edit3 style={{ width: '14px', height: '14px' }} />
+                              <span>Rename</span>
                             </button>
-                            <button className="btn-icon btn-delete" title="Delete Category" onClick={() => handleDeleteCategory(cat)}>
-                              <Trash2 style={{ width: '15px', height: '15px' }} />
+                            <button
+                              type="button"
+                              className="cat-mobile-action-btn delete"
+                              onClick={() => handleDeleteCategory(cat)}
+                            >
+                              <Trash2 style={{ width: '14px', height: '14px' }} />
+                              <span>Delete</span>
                             </button>
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
-        {/* TAB 5: HEADER MENU MANAGEMENT */}
+        {/* TAB 5: HEADER MENU MANAGEMENT (PREMIUM ALL-DEVICE RESPONSIVE) */}
         {activeTab === 'menu' && (
-          <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="admin-card-header" style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-              <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Header Navigation Menu</h3>
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  setMenuModalMode('add');
-                  setMenuInputTitle('');
-                  setMenuInputUrl('');
-                  setShowMenuModal(true);
-                }}
-              >
-                <PlusCircle style={{ width: '16px', height: '16px' }} /> Add Menu Item
-              </button>
+          <div className="menu-page-container">
+            {/* 1. Top Header Bar */}
+            <div className="menu-top-bar">
+              <div className="menu-top-bar-left">
+                <div className="menu-header-icon-wrap">
+                  <Navigation style={{ width: '22px', height: '22px', color: '#60a5fa' }} />
+                </div>
+                <div>
+                  <h3 className="menu-header-title">Header Navigation Menu</h3>
+                  <p className="menu-header-subtitle">
+                    Manage, reorder, and control links displayed on your portal top header navigation
+                  </p>
+                </div>
+              </div>
+
+              <div className="menu-top-bar-right">
+                <button
+                  type="button"
+                  className="btn btn-primary menu-add-btn"
+                  onClick={() => {
+                    setMenuModalMode('add');
+                    setMenuInputTitle('');
+                    setMenuInputUrl('');
+                    setShowMenuModal(true);
+                  }}
+                >
+                  <PlusCircle style={{ width: '16px', height: '16px' }} />
+                  <span>Add Menu Item</span>
+                </button>
+              </div>
             </div>
 
-            <div className="table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Menu Title</th>
-                    <th>Destination Link (URL)</th>
-                    <th>Visibility</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {menuList.map((item, idx) => (
-                    <tr key={idx}>
-                      <td style={{ fontWeight: 700, color: 'white' }}>{item.title}</td>
-                      <td style={{ fontFamily: 'monospace', color: '#94a3b8', fontSize: '0.85rem' }}>{item.url}</td>
-                      <td>
-                        {item.visible === 1 ? (
-                          <span className="status-badge publish"><Eye style={{ width: '12px', height: '12px' }} /> Visible</span>
-                        ) : (
-                          <span className="status-badge draft"><EyeOff style={{ width: '12px', height: '12px' }} /> Hidden</span>
-                        )}
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                          {idx > 0 && (
-                            <button className="btn-icon" title="Move Up" onClick={() => handleMoveMenu(idx, 'up')} style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa' }}>
-                              <ArrowUp style={{ width: '15px', height: '15px' }} />
-                            </button>
-                          )}
-                          {idx < menuList.length - 1 && (
-                            <button className="btn-icon" title="Move Down" onClick={() => handleMoveMenu(idx, 'down')} style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa' }}>
-                              <ArrowDown style={{ width: '15px', height: '15px' }} />
-                            </button>
-                          )}
-                          <button
-                            className="btn-icon"
-                            title={item.visible === 1 ? 'Hide Link' : 'Show Link'}
-                            onClick={() => handleToggleMenuVisibility(idx)}
-                            style={{ background: item.visible === 1 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)', color: item.visible === 1 ? '#f87171' : '#4ade80' }}
-                          >
-                            {item.visible === 1 ? <EyeOff style={{ width: '15px', height: '15px' }} /> : <Eye style={{ width: '15px', height: '15px' }} />}
-                          </button>
-                          <button
-                            className="btn-icon btn-edit"
-                            title="Edit Link"
-                            onClick={() => {
-                              setMenuModalMode('edit');
-                              setMenuEditIndex(idx);
-                              setMenuInputTitle(item.title);
-                              setMenuInputUrl(item.url);
-                              setShowMenuModal(true);
-                            }}
-                          >
-                            <Edit3 style={{ width: '15px', height: '15px' }} />
-                          </button>
-                          <button className="btn-icon btn-delete" title="Delete Link" onClick={() => handleDeleteMenuItem(idx)}>
-                            <Trash2 style={{ width: '15px', height: '15px' }} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* 2. Interactive Live Header Preview Simulator Card */}
+            <div className="menu-live-preview-card">
+              <div className="live-preview-top-strip">
+                <div className="live-preview-indicator">
+                  <span className="live-dot-pulse"></span>
+                  <span className="live-preview-title">Live Header Navigation Simulator</span>
+                </div>
+                <span className="live-preview-hint">Real-time simulation as visitors see it</span>
+              </div>
+
+              <div className="live-mock-navbar">
+                <div className="mock-navbar-brand">
+                  <span className="mock-brand-dot"></span>
+                  <span className="mock-brand-text">RRB Group D Portal</span>
+                </div>
+
+                <div className="mock-navbar-links-scroll">
+                  {menuList.length === 0 ? (
+                    <span className="mock-no-links-text">No navigation items added yet</span>
+                  ) : (
+                    menuList.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`mock-nav-pill ${item.visible === 1 ? 'is-visible' : 'is-hidden'}`}
+                        title={item.visible === 1 ? `Link: ${item.url}` : 'Hidden from visitors'}
+                      >
+                        <span className="mock-nav-order">#{idx + 1}</span>
+                        <span className="mock-nav-title">{item.title}</span>
+                        {item.visible !== 1 && <span className="mock-nav-hidden-tag">(Hidden)</span>}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
+
+            {/* 3. Metrics Strip */}
+            <div className="menu-metrics-strip">
+              <div className="menu-metric-stat-box">
+                <span className="menu-metric-stat-label">Total Links:</span>
+                <span className="menu-metric-stat-val all">{menuList.length}</span>
+              </div>
+
+              <div className="menu-metric-stat-box">
+                <Eye style={{ width: '13px', height: '13px', color: '#34d399' }} />
+                <span className="menu-metric-stat-label">Visible in Header:</span>
+                <span className="menu-metric-stat-val visible">
+                  {menuList.filter((m) => m.visible === 1).length}
+                </span>
+              </div>
+
+              <div className="menu-metric-stat-box">
+                <EyeOff style={{ width: '13px', height: '13px', color: '#f87171' }} />
+                <span className="menu-metric-stat-label">Hidden:</span>
+                <span className="menu-metric-stat-val hidden">
+                  {menuList.filter((m) => m.visible !== 1).length}
+                </span>
+              </div>
+
+              {/* Search input inside metrics strip or toolbar */}
+              <div className="menu-search-wrap">
+                <Search style={{ width: '14px', height: '14px', color: '#94a3b8' }} />
+                <input
+                  type="text"
+                  className="menu-search-input"
+                  placeholder="Filter menu items..."
+                  value={menuSearch}
+                  onChange={(e) => setMenuSearch(e.target.value)}
+                />
+                {menuSearch && (
+                  <button
+                    type="button"
+                    className="menu-search-clear-btn"
+                    onClick={() => setMenuSearch('')}
+                    title="Clear filter"
+                  >
+                    <X style={{ width: '13px', height: '13px' }} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* 4. Table / Cards Content */}
+            {(() => {
+              const indexedMenu = menuList.map((item, originalIdx) => ({ item, originalIdx }));
+              const filteredMenu = indexedMenu.filter(({ item }) => {
+                if (!menuSearch.trim()) return true;
+                const q = menuSearch.toLowerCase().trim();
+                return item.title.toLowerCase().includes(q) || item.url.toLowerCase().includes(q);
+              });
+
+              if (filteredMenu.length === 0) {
+                return (
+                  <div className="menu-empty-card">
+                    <div className="menu-empty-icon">
+                      <Navigation style={{ width: '36px', height: '36px', color: '#64748b' }} />
+                    </div>
+                    <h4 className="menu-empty-title">No Menu Items Found</h4>
+                    <p className="menu-empty-desc">
+                      {menuSearch
+                        ? `No menu item matching "${menuSearch}". Try another search keyword.`
+                        : 'Your header navigation menu is currently empty. Add links to let visitors easily navigate your site.'}
+                    </p>
+                    {menuSearch ? (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => setMenuSearch('')}
+                      >
+                        Clear Search
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => {
+                          setMenuModalMode('add');
+                          setMenuInputTitle('');
+                          setMenuInputUrl('');
+                          setShowMenuModal(true);
+                        }}
+                      >
+                        <PlusCircle style={{ width: '14px', height: '14px' }} />
+                        <span>Add First Menu Link</span>
+                      </button>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="menu-content-container">
+                  {/* Desktop / Tablet Table View */}
+                  <div className="menu-desktop-table-wrap">
+                    <table className="menu-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '70px' }}>Order</th>
+                          <th>Menu Title</th>
+                          <th>Destination Link (URL)</th>
+                          <th>Visibility</th>
+                          <th style={{ textAlign: 'right' }}>Reorder &amp; Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredMenu.map(({ item, originalIdx }) => (
+                          <tr key={originalIdx} className="menu-table-row">
+                            <td>
+                              <span className="menu-order-badge">#{originalIdx + 1}</span>
+                            </td>
+                            <td>
+                              <div className="menu-title-cell">
+                                <Link2 style={{ width: '14px', height: '14px', color: '#60a5fa' }} />
+                                <span className="menu-title-text">{item.title}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="menu-url-cell">
+                                <code className="menu-url-code">{item.url}</code>
+                                {item.url.startsWith('http') && (
+                                  <span className="menu-external-tag" title="External link">
+                                    <ExternalLink style={{ width: '11px', height: '11px' }} />
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td>
+                              {item.visible === 1 ? (
+                                <span className="status-badge publish">
+                                  <Eye style={{ width: '12px', height: '12px' }} />
+                                  <span>Visible</span>
+                                </span>
+                              ) : (
+                                <span className="status-badge draft">
+                                  <EyeOff style={{ width: '12px', height: '12px' }} />
+                                  <span>Hidden</span>
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <div className="menu-actions-row">
+                                <button
+                                  type="button"
+                                  className="btn-icon btn-move"
+                                  title="Move Up in Menu"
+                                  disabled={originalIdx === 0}
+                                  onClick={() => handleMoveMenu(originalIdx, 'up')}
+                                  style={{
+                                    opacity: originalIdx === 0 ? 0.35 : 1,
+                                    cursor: originalIdx === 0 ? 'not-allowed' : 'pointer',
+                                  }}
+                                >
+                                  <ArrowUp style={{ width: '14px', height: '14px' }} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-icon btn-move"
+                                  title="Move Down in Menu"
+                                  disabled={originalIdx === menuList.length - 1}
+                                  onClick={() => handleMoveMenu(originalIdx, 'down')}
+                                  style={{
+                                    opacity: originalIdx === menuList.length - 1 ? 0.35 : 1,
+                                    cursor: originalIdx === menuList.length - 1 ? 'not-allowed' : 'pointer',
+                                  }}
+                                >
+                                  <ArrowDown style={{ width: '14px', height: '14px' }} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`btn-icon ${item.visible === 1 ? 'menu-btn-hide' : 'menu-btn-show'}`}
+                                  title={item.visible === 1 ? 'Hide link from visitors' : 'Show link on website'}
+                                  onClick={() => handleToggleMenuVisibility(originalIdx)}
+                                >
+                                  {item.visible === 1 ? (
+                                    <EyeOff style={{ width: '14px', height: '14px' }} />
+                                  ) : (
+                                    <Eye style={{ width: '14px', height: '14px' }} />
+                                  )}
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-icon btn-edit"
+                                  title="Edit Menu Link"
+                                  onClick={() => {
+                                    setMenuModalMode('edit');
+                                    setMenuEditIndex(originalIdx);
+                                    setMenuInputTitle(item.title);
+                                    setMenuInputUrl(item.url);
+                                    setShowMenuModal(true);
+                                  }}
+                                >
+                                  <Edit3 style={{ width: '14px', height: '14px' }} />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-icon btn-delete"
+                                  title="Delete Menu Link"
+                                  onClick={() => handleDeleteMenuItem(originalIdx)}
+                                >
+                                  <Trash2 style={{ width: '14px', height: '14px' }} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Touch Cards View */}
+                  <div className="menu-mobile-cards-wrap">
+                    {filteredMenu.map(({ item, originalIdx }) => (
+                      <div key={originalIdx} className="menu-mobile-card">
+                        <div className="menu-mobile-card-top">
+                          <div className="menu-mobile-title-block">
+                            <span className="menu-order-badge">#{originalIdx + 1}</span>
+                            <h4 className="menu-mobile-title">{item.title}</h4>
+                          </div>
+
+                          {item.visible === 1 ? (
+                            <span className="status-badge publish">
+                              <Eye style={{ width: '11px', height: '11px' }} />
+                              <span>Visible</span>
+                            </span>
+                          ) : (
+                            <span className="status-badge draft">
+                              <EyeOff style={{ width: '11px', height: '11px' }} />
+                              <span>Hidden</span>
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="menu-mobile-url-box">
+                          <Link2 style={{ width: '13px', height: '13px', color: '#60a5fa', flexShrink: 0 }} />
+                          <span className="menu-mobile-url-text">{item.url}</span>
+                        </div>
+
+                        <div className="menu-mobile-card-actions">
+                          <div className="menu-mobile-reorder-group">
+                            <button
+                              type="button"
+                              className="menu-mobile-reorder-btn"
+                              disabled={originalIdx === 0}
+                              onClick={() => handleMoveMenu(originalIdx, 'up')}
+                              title="Move up"
+                            >
+                              <ArrowUp style={{ width: '13px', height: '13px' }} />
+                              <span>Up</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="menu-mobile-reorder-btn"
+                              disabled={originalIdx === menuList.length - 1}
+                              onClick={() => handleMoveMenu(originalIdx, 'down')}
+                              title="Move down"
+                            >
+                              <ArrowDown style={{ width: '13px', height: '13px' }} />
+                              <span>Down</span>
+                            </button>
+                          </div>
+
+                          <div className="menu-mobile-main-actions-group">
+                            <button
+                              type="button"
+                              className={`menu-mobile-action-btn ${item.visible === 1 ? 'hide' : 'show'}`}
+                              onClick={() => handleToggleMenuVisibility(originalIdx)}
+                            >
+                              {item.visible === 1 ? (
+                                <>
+                                  <EyeOff style={{ width: '13px', height: '13px' }} />
+                                  <span>Hide</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Eye style={{ width: '13px', height: '13px' }} />
+                                  <span>Show</span>
+                                </>
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              className="menu-mobile-action-btn edit"
+                              onClick={() => {
+                                setMenuModalMode('edit');
+                                setMenuEditIndex(originalIdx);
+                                setMenuInputTitle(item.title);
+                                setMenuInputUrl(item.url);
+                                setShowMenuModal(true);
+                              }}
+                            >
+                              <Edit3 style={{ width: '13px', height: '13px' }} />
+                              <span>Edit</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="menu-mobile-action-btn delete"
+                              onClick={() => handleDeleteMenuItem(originalIdx)}
+                            >
+                              <Trash2 style={{ width: '13px', height: '13px' }} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -2544,12 +3119,31 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         <div className="modal-overlay" onClick={() => setShowCatModal(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">{catModalMode === 'add' ? 'Add New Category' : 'Edit Category Name'}</h3>
-              <button className="btn-icon" onClick={() => setShowCatModal(false)}>&times;</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
+                  <FolderOpen style={{ width: '18px', height: '18px' }} />
+                </div>
+                <div>
+                  <h3 className="modal-title" style={{ margin: 0, fontSize: '1.1rem' }}>
+                    {catModalMode === 'add' ? 'Add New Category' : 'Edit Category Name'}
+                  </h3>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#94a3b8' }}>
+                    {catModalMode === 'add' ? 'Create a new classification for articles' : 'Update the display name of this category'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-icon"
+                onClick={() => setShowCatModal(false)}
+                title="Close modal"
+              >
+                <X style={{ width: '18px', height: '18px' }} />
+              </button>
             </div>
             <form onSubmit={catModalMode === 'add' ? handleAddCategorySubmit : handleEditCategorySubmit}>
-              <div className="form-group">
-                <label className="form-label">Category Name *</label>
+              <div className="form-group" style={{ marginTop: '16px' }}>
+                <label className="form-label" style={{ fontWeight: 600 }}>Category Name <span style={{ color: '#ef4444' }}>*</span></label>
                 <input
                   type="text"
                   required
@@ -2557,11 +3151,17 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   placeholder="e.g. Exam Notifications"
                   value={catInputName}
                   onChange={(e) => setCatInputName(e.target.value)}
+                  autoFocus
                 />
+                <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginTop: '6px' }}>
+                  Keep the name clear, unique, and concise for readers.
+                </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #334155' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowCatModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">{catModalMode === 'add' ? 'Add Category' : 'Save Name'}</button>
+                <button type="submit" className="btn btn-primary" style={{ fontWeight: 700 }}>
+                  {catModalMode === 'add' ? 'Add Category' : 'Save Changes'}
+                </button>
               </div>
             </form>
           </div>
@@ -2573,12 +3173,31 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         <div className="modal-overlay" onClick={() => setShowMenuModal(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">{menuModalMode === 'add' ? 'Add Header Menu Link' : 'Edit Menu Link'}</h3>
-              <button className="btn-icon" onClick={() => setShowMenuModal(false)}>&times;</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(59, 130, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60a5fa' }}>
+                  <Navigation style={{ width: '18px', height: '18px' }} />
+                </div>
+                <div>
+                  <h3 className="modal-title" style={{ margin: 0, fontSize: '1.1rem' }}>
+                    {menuModalMode === 'add' ? 'Add Header Navigation Link' : 'Edit Menu Link'}
+                  </h3>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '0.78rem', color: '#94a3b8' }}>
+                    {menuModalMode === 'add' ? 'Add a new clickable item to the portal header' : 'Update the title or destination link'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-icon"
+                onClick={() => setShowMenuModal(false)}
+                title="Close modal"
+              >
+                <X style={{ width: '18px', height: '18px' }} />
+              </button>
             </div>
             <form onSubmit={menuModalMode === 'add' ? handleAddMenuSubmit : handleEditMenuSubmit}>
-              <div className="form-group">
-                <label className="form-label">Menu Item Title *</label>
+              <div className="form-group" style={{ marginTop: '16px' }}>
+                <label className="form-label" style={{ fontWeight: 600 }}>Menu Link Title <span style={{ color: '#ef4444' }}>*</span></label>
                 <input
                   type="text"
                   required
@@ -2586,22 +3205,28 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   placeholder="e.g. Answer Key"
                   value={menuInputTitle}
                   onChange={(e) => setMenuInputTitle(e.target.value)}
+                  autoFocus
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Destination URL *</label>
+                <label className="form-label" style={{ fontWeight: 600 }}>Destination URL / Link <span style={{ color: '#ef4444' }}>*</span></label>
                 <input
                   type="text"
                   required
                   className="form-control"
-                  placeholder="/answer-key/"
+                  placeholder="/answer-key/ or https://example.com"
                   value={menuInputUrl}
                   onChange={(e) => setMenuInputUrl(e.target.value)}
                 />
+                <span style={{ display: 'block', fontSize: '0.75rem', color: '#64748b', marginTop: '6px' }}>
+                  Use relative paths like <code>/answer-key/</code> or full external links like <code>https://...</code>
+                </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #334155' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowMenuModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">{menuModalMode === 'add' ? 'Add Link' : 'Save Link'}</button>
+                <button type="submit" className="btn btn-primary" style={{ fontWeight: 700 }}>
+                  {menuModalMode === 'add' ? 'Add Navigation Link' : 'Save Changes'}
+                </button>
               </div>
             </form>
           </div>
