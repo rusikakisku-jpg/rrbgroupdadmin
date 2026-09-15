@@ -150,6 +150,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [catSearch, setCatSearch] = useState('');
   const [catStatusFilter, setCatStatusFilter] = useState<'all' | 'visible' | 'hidden'>('all');
   const [menuSearch, setMenuSearch] = useState('');
+  const [settingsSectionTab, setSettingsSectionTab] = useState<'all' | 'general' | 'seo' | 'ads' | 'integrations' | 'robots'>('all');
 
   // Settings form states
   const [siteTitleVal, setSiteTitleVal] = useState('RRB Group D Answer Key');
@@ -2861,147 +2862,539 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         )}
 
         {/* TAB 8: WEBSITE SETTINGS */}
+        {/* TAB 8: WEBSITE SETTINGS (PREMIUM ALL-DEVICE RESPONSIVE) */}
         {activeTab === 'settings' && (
-          <form onSubmit={handleSaveSettings} className="admin-card">
-            <h3 style={{ fontSize: '1.2rem', color: 'white', marginTop: 0, marginBottom: '25px', borderBottom: '1px solid #334155', paddingBottom: '12px' }}>
-              General & SEO Configurations
-            </h3>
-
-            <div className="settings-grid" style={{ display: 'grid', gap: '20px' }}>
-              <div className="form-group">
-                <label className="form-label">Site Title</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={siteTitleVal}
-                  onChange={(e) => setSiteTitleVal(e.target.value)}
-                />
+          <form onSubmit={handleSaveSettings} className="settings-page-container">
+            {/* 1. Top Command Bar */}
+            <div className="settings-top-bar">
+              <div className="settings-top-bar-left">
+                <div className="settings-header-icon-wrap">
+                  <Settings style={{ width: '22px', height: '22px', color: '#38bdf8' }} />
+                </div>
+                <div>
+                  <h3 className="settings-header-title">Website Settings &amp; Configurations</h3>
+                  <p className="settings-header-subtitle">
+                    Manage portal branding, SEO, monetization ads, Google Analytics, and system configurations
+                  </p>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Site Tagline</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={siteTaglineVal}
-                  onChange={(e) => setSiteTaglineVal(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Site Logo Image URL</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={siteLogoVal}
-                  onChange={(e) => setSiteLogoVal(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Site Favicon Image URL</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={siteFaviconVal}
-                  onChange={(e) => setSiteFaviconVal(e.target.value)}
-                />
+              <div className="settings-top-bar-right">
+                <button
+                  type="button"
+                  className="btn btn-secondary settings-refresh-btn"
+                  onClick={() => {
+                    loadData();
+                    showSuccess('Settings reloaded from database!');
+                  }}
+                  title="Reload settings from database"
+                >
+                  <RotateCcw style={{ width: '15px', height: '15px' }} />
+                  <span>Reload</span>
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary settings-top-save-btn"
+                >
+                  <Save style={{ width: '16px', height: '16px' }} />
+                  <span>Save All Settings</span>
+                </button>
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Site Description</label>
-              <textarea
-                rows={3}
-                className="form-control"
-                value={siteDescVal}
-                onChange={(e) => setSiteDescVal(e.target.value)}
-              ></textarea>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Default Meta Description</label>
-              <textarea
-                rows={3}
-                className="form-control"
-                value={defaultMetaDescVal}
-                onChange={(e) => setDefaultMetaDescVal(e.target.value)}
-              ></textarea>
-            </div>
-
-            <h3 style={{ fontSize: '1.2rem', color: 'white', marginTop: '30px', marginBottom: '20px', borderBottom: '1px solid #334155', paddingBottom: '12px' }}>
-              Monetization & AdSense Settings
-            </h3>
-
-            <div className="form-group">
-              <label className="form-label">AdSense Banner Status</label>
-              <select className="form-control" value={adsStatusVal} onChange={(e) => setAdsStatusVal(e.target.value)}>
-                <option value="1">Enabled (Show Ads)</option>
-                <option value="0">Disabled (Hide Ads)</option>
-              </select>
-            </div>
-
-            <div className="settings-grid" style={{ display: 'grid', gap: '20px' }}>
-              <div className="form-group">
-                <label className="form-label">Header Ad Code (Script)</label>
-                <textarea rows={3} className="form-control" value={adHeaderVal} onChange={(e) => setAdHeaderVal(e.target.value)} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}></textarea>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Top Banner Ad Code (728x90)</label>
-                <textarea rows={3} className="form-control" value={adTopVal} onChange={(e) => setAdTopVal(e.target.value)} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}></textarea>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Bottom Ad Code</label>
-                <textarea rows={3} className="form-control" value={adBottomVal} onChange={(e) => setAdBottomVal(e.target.value)} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}></textarea>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Sidebar Ad Code (300x250)</label>
-                <textarea rows={3} className="form-control" value={adSidebarVal} onChange={(e) => setAdSidebarVal(e.target.value)} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}></textarea>
-              </div>
-            </div>
-
-            <h3 style={{ fontSize: '1.2rem', color: 'white', marginTop: '30px', marginBottom: '20px', borderBottom: '1px solid #334155', paddingBottom: '12px' }}>
-              Integrations, API Keys & Robots.txt
-            </h3>
-
-            <div className="settings-grid" style={{ display: 'grid', gap: '20px' }}>
-              <div className="form-group">
-                <label className="form-label">TinyMCE API Key</label>
-                <input type="text" className="form-control" placeholder="TinyMCE Cloud Key (optional)" value={tinymceApiKeyVal} onChange={(e) => setTinymceApiKeyVal(e.target.value)} />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Google Analytics 4 Measurement ID</label>
-                <input type="text" className="form-control" placeholder="G-XXXXXXXXXX" value={gaVal} onChange={(e) => setGaVal(e.target.value)} />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Google Search Console Verification Tag</label>
-                <input type="text" className="form-control" placeholder="HTML tag or verification code" value={gscVal} onChange={(e) => setGscVal(e.target.value)} />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">OneSignal App ID</label>
-                <input type="text" className="form-control" placeholder="OneSignal App ID for push notifications" value={oneSignalAppIdVal} onChange={(e) => setOneSignalAppIdVal(e.target.value)} />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">OneSignal REST API Key</label>
-                <input type="text" className="form-control" placeholder="OneSignal REST API Key" value={oneSignalApiKeyVal} onChange={(e) => setOneSignalApiKeyVal(e.target.value)} />
+            {/* 2. Section Filter Tabs Navigation */}
+            <div className="settings-nav-tabs-container">
+              <div className="settings-nav-tabs-scroll">
+                <button
+                  type="button"
+                  className={`settings-nav-tab-btn ${settingsSectionTab === 'all' ? 'active' : ''}`}
+                  onClick={() => setSettingsSectionTab('all')}
+                >
+                  <LayoutGrid style={{ width: '15px', height: '15px' }} />
+                  <span>All Settings</span>
+                </button>
+                <button
+                  type="button"
+                  className={`settings-nav-tab-btn ${settingsSectionTab === 'general' ? 'active' : ''}`}
+                  onClick={() => setSettingsSectionTab('general')}
+                >
+                  <Globe style={{ width: '15px', height: '15px' }} />
+                  <span>General &amp; Branding</span>
+                </button>
+                <button
+                  type="button"
+                  className={`settings-nav-tab-btn ${settingsSectionTab === 'seo' ? 'active' : ''}`}
+                  onClick={() => setSettingsSectionTab('seo')}
+                >
+                  <Search style={{ width: '15px', height: '15px' }} />
+                  <span>SEO &amp; Search</span>
+                </button>
+                <button
+                  type="button"
+                  className={`settings-nav-tab-btn ${settingsSectionTab === 'ads' ? 'active' : ''}`}
+                  onClick={() => setSettingsSectionTab('ads')}
+                >
+                  <Tags style={{ width: '15px', height: '15px' }} />
+                  <span>Monetization &amp; Ads</span>
+                </button>
+                <button
+                  type="button"
+                  className={`settings-nav-tab-btn ${settingsSectionTab === 'integrations' ? 'active' : ''}`}
+                  onClick={() => setSettingsSectionTab('integrations')}
+                >
+                  <Code style={{ width: '15px', height: '15px' }} />
+                  <span>Integrations &amp; APIs</span>
+                </button>
+                <button
+                  type="button"
+                  className={`settings-nav-tab-btn ${settingsSectionTab === 'robots' ? 'active' : ''}`}
+                  onClick={() => setSettingsSectionTab('robots')}
+                >
+                  <FileText style={{ width: '15px', height: '15px' }} />
+                  <span>Robots.txt</span>
+                </button>
               </div>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Robots.txt Content</label>
-              <textarea rows={4} className="form-control" value={robotsTxtVal} onChange={(e) => setRobotsTxtVal(e.target.value)} style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}></textarea>
+            {/* 3. Settings Cards Sections */}
+            <div className="settings-sections-wrapper">
+              {/* SECTION 1: GENERAL & BRANDING */}
+              {(settingsSectionTab === 'all' || settingsSectionTab === 'general') && (
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <div className="settings-card-icon-title">
+                      <div className="settings-section-badge general">
+                        <Globe style={{ width: '18px', height: '18px' }} />
+                      </div>
+                      <div>
+                        <h4 className="settings-section-title">General Information &amp; Branding</h4>
+                        <p className="settings-section-desc">Configure your website portal name, tagline, logo, and favicon</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="settings-grid-2col">
+                    <div className="form-group">
+                      <div className="settings-field-label-row">
+                        <label className="form-label settings-label">Site Title *</label>
+                        <span className="settings-char-hint">{siteTitleVal.length} chars</span>
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        className="form-control settings-input"
+                        placeholder="e.g. RRB Group D Answer Key"
+                        value={siteTitleVal}
+                        onChange={(e) => setSiteTitleVal(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <div className="settings-field-label-row">
+                        <label className="form-label settings-label">Site Tagline</label>
+                        <span className="settings-char-hint">{siteTaglineVal.length} chars</span>
+                      </div>
+                      <input
+                        type="text"
+                        className="form-control settings-input"
+                        placeholder="e.g. Notification, Answer key, Result"
+                        value={siteTaglineVal}
+                        onChange={(e) => setSiteTaglineVal(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label settings-label">Site Logo Image URL</label>
+                      <input
+                        type="text"
+                        className="form-control settings-input"
+                        placeholder="https://example.com/logo.png"
+                        value={siteLogoVal}
+                        onChange={(e) => setSiteLogoVal(e.target.value)}
+                      />
+                      <span className="settings-helper-text">Recommended: Transparent PNG, SVG or WEBP (approx. 240x60px)</span>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label settings-label">Site Favicon Image URL</label>
+                      <input
+                        type="text"
+                        className="form-control settings-input"
+                        placeholder="https://example.com/favicon.ico"
+                        value={siteFaviconVal}
+                        onChange={(e) => setSiteFaviconVal(e.target.value)}
+                      />
+                      <span className="settings-helper-text">Square icon (32x32 or 64x64) for browser tabs</span>
+                    </div>
+                  </div>
+
+                  {/* Live Browser Tab & Branding Preview Simulator */}
+                  <div className="settings-live-brand-preview">
+                    <div className="live-brand-preview-header">
+                      <span className="live-brand-preview-title">Live Browser Tab Simulation</span>
+                      <span className="live-brand-preview-sub">How your website branding appears to visitors in the browser</span>
+                    </div>
+
+                    <div className="mock-browser-tab-bar">
+                      <div className="mock-browser-tab">
+                        {siteFaviconVal ? (
+                          <img src={siteFaviconVal} alt="Favicon" className="mock-favicon-img" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                        ) : (
+                          <div className="mock-favicon-placeholder">
+                            <Globe style={{ width: '12px', height: '12px', color: '#38bdf8' }} />
+                          </div>
+                        )}
+                        <span className="mock-tab-title">{siteTitleVal || 'RRB Group D Portal'} — {siteTaglineVal || 'Official Updates'}</span>
+                        <span className="mock-tab-close">&times;</span>
+                      </div>
+                    </div>
+
+                    <div className="mock-browser-address-bar">
+                      <span className="mock-ssl-lock">🔒 https://</span>
+                      <span className="mock-domain-text">rrbgroupdanswerkey.pages.dev</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 2: SEO & SEARCH ENGINE CONFIGURATIONS */}
+              {(settingsSectionTab === 'all' || settingsSectionTab === 'seo') && (
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <div className="settings-card-icon-title">
+                      <div className="settings-section-badge seo">
+                        <Search style={{ width: '18px', height: '18px' }} />
+                      </div>
+                      <div>
+                        <h4 className="settings-section-title">SEO &amp; Search Engine Settings</h4>
+                        <p className="settings-section-desc">Optimize descriptions for Google indexing and web crawlers</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <div className="settings-field-label-row">
+                      <label className="form-label settings-label">Site Global Description</label>
+                      <span className="settings-char-hint">{siteDescVal.length} characters</span>
+                    </div>
+                    <textarea
+                      rows={3}
+                      className="form-control settings-textarea"
+                      placeholder="Comprehensive overview of your website portal and target exams..."
+                      value={siteDescVal}
+                      onChange={(e) => setSiteDescVal(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <div className="settings-field-label-row">
+                      <label className="form-label settings-label">Default Meta Description</label>
+                      <span className="settings-char-hint">{defaultMetaDescVal.length}/160 (Recommended: 120-160 chars)</span>
+                    </div>
+                    <textarea
+                      rows={3}
+                      className="form-control settings-textarea"
+                      placeholder="Fallback meta description used on home and pages without custom meta description..."
+                      value={defaultMetaDescVal}
+                      onChange={(e) => setDefaultMetaDescVal(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Google Search Result SERP Preview */}
+                  <div className="settings-serp-preview-box">
+                    <div className="serp-top-row">
+                      <span className="serp-domain">https://rrbgroupdanswerkey.pages.dev</span>
+                    </div>
+                    <h5 className="serp-title">
+                      {siteTitleVal || 'RRB Group D Answer Key'} {siteTaglineVal ? `| ${siteTaglineVal}` : ''}
+                    </h5>
+                    <p className="serp-desc">
+                      {defaultMetaDescVal || siteDescVal || 'Official Railway Recruitment Board RRB Group D Answer Key Updates 2026.'}
+                    </p>
+                  </div>
+
+                  <div className="form-group" style={{ marginTop: '16px', marginBottom: 0 }}>
+                    <label className="form-label settings-label">Google Search Console Verification Tag</label>
+                    <input
+                      type="text"
+                      className="form-control settings-input settings-code-input"
+                      placeholder='<meta name="google-site-verification" content="XXXXXXXXX" /> or verification token'
+                      value={gscVal}
+                      onChange={(e) => setGscVal(e.target.value)}
+                    />
+                    <span className="settings-helper-text">
+                      Paste HTML meta tag or verification key provided in Google Search Console ownership verification.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 3: MONETIZATION & ADSENSE */}
+              {(settingsSectionTab === 'all' || settingsSectionTab === 'ads') && (
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <div className="settings-card-icon-title">
+                      <div className="settings-section-badge ads">
+                        <Tags style={{ width: '18px', height: '18px' }} />
+                      </div>
+                      <div>
+                        <h4 className="settings-section-title">Monetization &amp; Google AdSense</h4>
+                        <p className="settings-section-desc">Manage advertising banner placements and custom publisher scripts</p>
+                      </div>
+                    </div>
+
+                    <div className="settings-ad-status-pill-wrap">
+                      <span className={`ad-status-live-pill ${adsStatusVal === '1' ? 'active' : 'disabled'}`}>
+                        <span className="ad-status-dot"></span>
+                        <span>{adsStatusVal === '1' ? 'Ads Active & Serving' : 'Ads Disabled (Hidden)'}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label settings-label">AdSense Master Banner Status</label>
+                    <select
+                      className="form-control settings-select"
+                      value={adsStatusVal}
+                      onChange={(e) => setAdsStatusVal(e.target.value)}
+                    >
+                      <option value="1">🟢 Enabled (Show Ads across all website pages)</option>
+                      <option value="0">🔴 Disabled (Temporarily hide all ad banners)</option>
+                    </select>
+                  </div>
+
+                  <div className="settings-grid-2col">
+                    <div className="form-group">
+                      <div className="settings-code-label-strip">
+                        <label className="form-label settings-label">Header Ad Code (Script / Auto-Ads)</label>
+                        <span className="settings-code-tag">&lt;head&gt; script</span>
+                      </div>
+                      <textarea
+                        rows={4}
+                        className="form-control settings-textarea settings-code-textarea"
+                        placeholder="<script async src='https://pagead2.googlesyndication.com/...'></script>"
+                        value={adHeaderVal}
+                        onChange={(e) => setAdHeaderVal(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <div className="settings-code-label-strip">
+                        <label className="form-label settings-label">Top Banner Ad Code (728x90)</label>
+                        <span className="settings-code-tag">Above Content</span>
+                      </div>
+                      <textarea
+                        rows={4}
+                        className="form-control settings-textarea settings-code-textarea"
+                        placeholder="Paste your top banner ad HTML/JS code here..."
+                        value={adTopVal}
+                        onChange={(e) => setAdTopVal(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <div className="settings-code-label-strip">
+                        <label className="form-label settings-label">Bottom Banner Ad Code</label>
+                        <span className="settings-code-tag">Footer / End</span>
+                      </div>
+                      <textarea
+                        rows={4}
+                        className="form-control settings-textarea settings-code-textarea"
+                        placeholder="Paste your footer or article bottom ad code here..."
+                        value={adBottomVal}
+                        onChange={(e) => setAdBottomVal(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <div className="settings-code-label-strip">
+                        <label className="form-label settings-label">Sidebar Ad Code (300x250)</label>
+                        <span className="settings-code-tag">Sidebar Widget</span>
+                      </div>
+                      <textarea
+                        rows={4}
+                        className="form-control settings-textarea settings-code-textarea"
+                        placeholder="Paste your 300x250 or responsive sidebar ad code here..."
+                        value={adSidebarVal}
+                        onChange={(e) => setAdSidebarVal(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 4: INTEGRATIONS & API KEYS */}
+              {(settingsSectionTab === 'all' || settingsSectionTab === 'integrations') && (
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <div className="settings-card-icon-title">
+                      <div className="settings-section-badge integrations">
+                        <Code style={{ width: '18px', height: '18px' }} />
+                      </div>
+                      <div>
+                        <h4 className="settings-section-title">Integrations &amp; API Keys</h4>
+                        <p className="settings-section-desc">Connect Google Analytics 4, TinyMCE Cloud editor, and OneSignal Push notifications</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="settings-grid-2col">
+                    <div className="form-group">
+                      <label className="form-label settings-label">Google Analytics 4 Measurement ID</label>
+                      <input
+                        type="text"
+                        className="form-control settings-input settings-code-input"
+                        placeholder="G-XXXXXXXXXX"
+                        value={gaVal}
+                        onChange={(e) => setGaVal(e.target.value)}
+                      />
+                      <span className="settings-helper-text">GA4 Measurement ID starts with 'G-'</span>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label settings-label">TinyMCE Cloud API Key</label>
+                      <input
+                        type="text"
+                        className="form-control settings-input settings-code-input"
+                        placeholder="Optional TinyMCE Cloud API Key"
+                        value={tinymceApiKeyVal}
+                        onChange={(e) => setTinymceApiKeyVal(e.target.value)}
+                      />
+                      <span className="settings-helper-text">Leave blank to use CDN TinyMCE editor</span>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label settings-label">OneSignal App ID</label>
+                      <input
+                        type="text"
+                        className="form-control settings-input settings-code-input"
+                        placeholder="OneSignal App ID (UUID format)"
+                        value={oneSignalAppIdVal}
+                        onChange={(e) => setOneSignalAppIdVal(e.target.value)}
+                      />
+                      <span className="settings-helper-text">App ID used for browser web push notifications</span>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label settings-label">OneSignal REST API Key</label>
+                      <input
+                        type="password"
+                        className="form-control settings-input settings-code-input"
+                        placeholder="OneSignal REST API Key"
+                        value={oneSignalApiKeyVal}
+                        onChange={(e) => setOneSignalApiKeyVal(e.target.value)}
+                      />
+                      <span className="settings-helper-text">Required to broadcast push notifications from admin panel</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SECTION 5: SEARCH ENGINE CRAWLERS & ROBOTS.TXT */}
+              {(settingsSectionTab === 'all' || settingsSectionTab === 'robots') && (
+                <div className="settings-card">
+                  <div className="settings-card-header">
+                    <div className="settings-card-icon-title">
+                      <div className="settings-section-badge robots">
+                        <FileText style={{ width: '18px', height: '18px' }} />
+                      </div>
+                      <div>
+                        <h4 className="settings-section-title">Robots.txt &amp; Search Engine Indexing</h4>
+                        <p className="settings-section-desc">Control search bot crawling rules, sitemaps, and restricted paths</p>
+                      </div>
+                    </div>
+
+                    {/* Presets */}
+                    <div className="robots-preset-buttons">
+                      <button
+                        type="button"
+                        className="robots-preset-btn"
+                        onClick={() => {
+                          setRobotsTxtVal(`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: https://rrbgroupdanswerkey.pages.dev/sitemap.xml`);
+                          showSuccess('Recommended robots.txt preset loaded!');
+                        }}
+                        title="Load recommended SEO robots.txt preset"
+                      >
+                        <RotateCcw style={{ width: '12px', height: '12px' }} />
+                        <span>Recommended Preset</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="robots-preset-btn"
+                        onClick={() => {
+                          setRobotsTxtVal(`User-agent: *\nAllow: /`);
+                          showSuccess('Allow-all robots.txt loaded!');
+                        }}
+                      >
+                        <span>Allow All</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <div className="settings-code-label-strip">
+                      <label className="form-label settings-label">Robots.txt Content</label>
+                      <span className="settings-code-tag">plain text</span>
+                    </div>
+                    <textarea
+                      rows={6}
+                      className="form-control settings-textarea settings-code-textarea"
+                      value={robotsTxtVal}
+                      onChange={(e) => setRobotsTxtVal(e.target.value)}
+                    />
+                    <span className="settings-helper-text">
+                      Served publicly at <code>https://rrbgroupdanswerkey.pages.dev/robots.txt</code> for search engine crawlers.
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="settings-submit-row" style={{ marginTop: '25px', display: 'flex', justifyContent: 'flex-end' }}>
-              <button type="submit" className="btn btn-primary" style={{ padding: '12px 30px' }}>
-                <Save style={{ width: '18px', height: '18px' }} /> Save All Settings
+            {/* 4. Bottom Desktop Save Actions Bar */}
+            <div className="settings-bottom-actions-bar">
+              <div className="settings-bottom-info">
+                <CheckCircle style={{ width: '15px', height: '15px', color: '#10b981' }} />
+                <span>All changes will be applied immediately across your live website</span>
+              </div>
+              <div className="settings-bottom-btns">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    loadData();
+                    showSuccess('Settings reset to latest saved state.');
+                  }}
+                >
+                  Discard Changes
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary settings-primary-submit-btn"
+                >
+                  <Save style={{ width: '16px', height: '16px' }} />
+                  <span>Save All Settings</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 5. Mobile Fixed Bottom Action Bar (<= 640px) */}
+            <div className="settings-mobile-bottom-bar">
+              <button
+                type="button"
+                className="btn btn-secondary settings-mobile-btn-discard"
+                onClick={() => {
+                  loadData();
+                  showSuccess('Settings refreshed!');
+                }}
+              >
+                Reset
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary settings-mobile-btn-save"
+              >
+                <Save style={{ width: '16px', height: '16px' }} />
+                <span>Save All Settings</span>
               </button>
             </div>
           </form>
