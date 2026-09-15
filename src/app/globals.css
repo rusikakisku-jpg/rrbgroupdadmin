@@ -619,44 +619,9 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
     color: #ffffff;
   }
 
-  /* Sticky Horizontal Nav Bar on Tablet/Mobile */
+  /* On Tablet/Mobile (<= 991px), hide sidebar completely by default so menu items do NOT show at the top */
   .admin-sidebar {
-    height: auto;
-    position: relative;
-    padding: 8px 14px;
-    gap: 8px;
-    border-right: none;
-    border-bottom: 1px solid #1e293b;
-    flex-shrink: 0;
-    background-color: #0f172a;
-    z-index: 600;
-  }
-
-  .sidebar-brand {
-    display: none; /* Brand is accessible inside header / mobile drawer */
-  }
-
-  .sidebar-menu {
-    flex-direction: row;
-    overflow-x: auto;
-    gap: 6px;
-    padding: 4px 0;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .sidebar-menu::-webkit-scrollbar {
     display: none;
-  }
-
-  .sidebar-link {
-    white-space: nowrap;
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    gap: 6px;
-    flex-shrink: 0;
-    border-radius: 8px;
-    width: auto;
   }
 
   /* Full-Screen Drawer when Mobile Menu is Toggled */

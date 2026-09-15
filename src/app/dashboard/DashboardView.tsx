@@ -292,9 +292,11 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         if (validTabs.includes(currentTab as TabType)) {
           setEditId(null);
           setActiveTab(currentTab as TabType);
+          setMobileMenuOpen(false);
         } else if (path === '/dashboard' || path === '') {
           setEditId(null);
           setActiveTab('dashboard');
+          setMobileMenuOpen(false);
         }
 
         const isEditRoute = window.location.pathname.includes('/edit');
