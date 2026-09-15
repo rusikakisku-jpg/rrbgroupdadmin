@@ -35,6 +35,11 @@ import {
   Image as ImageIcon,
   Code,
   Edit,
+  ZoomIn,
+  Copy,
+  Check,
+  Calendar,
+  RotateCcw,
 } from 'lucide-react';
 
 const TinyEditor = dynamic(
@@ -75,6 +80,10 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'publish' | 'draft'>('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+
+  // Image Preview Lightbox state
+  const [previewImage, setPreviewImage] = useState<{ url: string; title: string; slug?: string; category?: string } | null>(null);
+  const [copiedImageLink, setCopiedImageLink] = useState(false);
 
   // Post Editor state
   const [editId, setEditId] = useState<number | null>(null);
@@ -167,6 +176,17 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       }
     }
   }, [router]);
+
+  // Close image preview lightbox on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && previewImage) {
+        setPreviewImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [previewImage]);
 
   // Load All Data
   const loadData = async () => {
@@ -681,6 +701,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   // Calculated Stats
   const totalPosts = Array.isArray(posts) ? posts.length : 0;
   const publishedPosts = Array.isArray(posts) ? posts.filter((p) => p.status === 'publish').length : 0;
+  const draftPosts = Array.isArray(posts) ? posts.filter((p) => p.status === 'draft').length : 0;
   const totalViews = Array.isArray(posts) ? posts.reduce((sum, p) => sum + (p.views || 0), 0) : 0;
   const totalSubscribers = Array.isArray(subscribers) ? subscribers.length : 0;
   const totalComments = Array.isArray(comments) ? comments.length : 0;
@@ -995,98 +1016,469 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           </>
         )}
 
-        {/* TAB 2: ALL ARTICLES LIST */}
+        {/* TAB 2: ALL ARTICLES LIST (PREMIUM PROFESSIONAL UI) */}
         {activeTab === 'list' && (
-          <div className="admin-card">
-            {/* Filter Bar */}
-            <div className="articles-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap', marginBottom: '25px' }}>
-              <div className="articles-filter-controls" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', flex: 1 }}>
-                <div className="search-input-wrapper" style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
-                  <Search style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', color: '#94a3b8' }} />
-                  <input
-                    type="text"
-                    className="form-control search-input"
-                    placeholder="Search articles..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ paddingLeft: '38px' }}
-                  />
-                </div>
-                <select className="form-control filter-select filter-status" value={statusFilter} onChange={(e: any) => setStatusFilter(e.target.value)}>
-                  <option value="all">All Status</option>
-                  <option value="publish">Published</option>
-                  <option value="draft">Draft</option>
-                </select>
-                <select className="form-control filter-select filter-category" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
-                  <option value="all">All Categories</option>
-                  {categoriesList.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-
-              <button className="btn btn-primary add-article-btn" onClick={handleOpenAddForm}>
-                <PlusCircle style={{ width: '18px', height: '18px' }} /> Add Article
+          <div className="articles-manager-container">
+            {/* Quick Metrics & Status Filter Strip */}
+            <div className="articles-metrics-strip">
+              <button
+                type="button"
+                className={`metric-pill-btn ${statusFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('all')}
+              >
+                <span className="metric-pill-indicator all" />
+                <span className="metric-pill-label">All Articles</span>
+                <span className="metric-pill-badge">{posts.length}</span>
               </button>
+
+              <button
+                type="button"
+                className={`metric-pill-btn ${statusFilter === 'publish' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('publish')}
+              >
+                <span className="metric-pill-indicator published" />
+                <span className="metric-pill-label">Published</span>
+                <span className="metric-pill-badge">{publishedPosts}</span>
+              </button>
+
+              <button
+                type="button"
+                className={`metric-pill-btn ${statusFilter === 'draft' ? 'active' : ''}`}
+                onClick={() => setStatusFilter('draft')}
+              >
+                <span className="metric-pill-indicator draft" />
+                <span className="metric-pill-label">Drafts</span>
+                <span className="metric-pill-badge">{draftPosts}</span>
+              </button>
+
+              <div className="metric-pill-stat">
+                <Eye style={{ width: '14px', height: '14px', color: '#38bdf8' }} />
+                <span className="metric-pill-label">Total Views</span>
+                <span className="metric-pill-value">{totalViews.toLocaleString()}</span>
+              </div>
             </div>
 
-            {/* Articles Table */}
-            <div className="table-container">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Article Title</th>
-                    <th>Category</th>
-                    <th>Views</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredPosts.length === 0 ? (
+            {/* Main Articles Card */}
+            <div className="admin-card articles-card">
+              {/* Filter & Action Toolbar */}
+              <div className="articles-toolbar">
+                <div className="articles-toolbar-left">
+                  {/* Search Box */}
+                  <div className="articles-search-box">
+                    <Search className="search-icon" />
+                    <input
+                      type="text"
+                      className="articles-search-input"
+                      placeholder="Search articles by title or slug..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        className="articles-search-clear"
+                        onClick={() => setSearchQuery('')}
+                        aria-label="Clear search query"
+                      >
+                        <X style={{ width: '14px', height: '14px' }} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Status Filter */}
+                  <div className="articles-select-wrapper">
+                    <select
+                      className="articles-select"
+                      value={statusFilter}
+                      onChange={(e: any) => setStatusFilter(e.target.value)}
+                    >
+                      <option value="all">All Status ({posts.length})</option>
+                      <option value="publish">Published ({publishedPosts})</option>
+                      <option value="draft">Draft ({draftPosts})</option>
+                    </select>
+                  </div>
+
+                  {/* Category Filter */}
+                  <div className="articles-select-wrapper">
+                    <select
+                      className="articles-select"
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                    >
+                      <option value="all">All Categories ({categoriesList.length})</option>
+                      {categoriesList.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Reset Filters button */}
+                  {(searchQuery || statusFilter !== 'all' || categoryFilter !== 'all') && (
+                    <button
+                      type="button"
+                      className="articles-reset-btn"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setStatusFilter('all');
+                        setCategoryFilter('all');
+                      }}
+                      title="Reset all filters"
+                    >
+                      <RotateCcw style={{ width: '14px', height: '14px' }} />
+                      <span>Reset</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="articles-toolbar-right">
+                  <button className="btn btn-primary add-article-gradient-btn" onClick={handleOpenAddForm}>
+                    <PlusCircle style={{ width: '18px', height: '18px' }} />
+                    <span>Create Article</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Active Filter Helper Feedback */}
+              {(searchQuery || statusFilter !== 'all' || categoryFilter !== 'all') && (
+                <div className="articles-active-filters-info">
+                  <span>
+                    Showing <strong>{filteredPosts.length}</strong> of {posts.length} articles
+                  </span>
+                  {searchQuery && <span className="filter-tag">Search: &quot;{searchQuery}&quot;</span>}
+                  {statusFilter !== 'all' && <span className="filter-tag">Status: {statusFilter}</span>}
+                  {categoryFilter !== 'all' && <span className="filter-tag">Category: {categoryFilter}</span>}
+                </div>
+              )}
+
+              {/* DESKTOP & TABLET: Premium Data Table (> 640px) */}
+              <div className="articles-desktop-table-container">
+                <table className="admin-table articles-premium-table">
+                  <thead>
                     <tr>
-                      <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
-                        No articles found matching your criteria.
-                      </td>
+                      <th style={{ width: '90px' }}>Cover</th>
+                      <th>Article Details</th>
+                      <th style={{ width: '150px' }}>Category</th>
+                      <th style={{ width: '110px' }}>Views</th>
+                      <th style={{ width: '120px' }}>Date</th>
+                      <th style={{ width: '110px' }}>Status</th>
+                      <th style={{ textAlign: 'right', width: '160px' }}>Actions</th>
                     </tr>
-                  ) : (
-                    filteredPosts.map((p) => (
-                      <tr key={p.id}>
-                        <td>
-                          <div style={{ fontWeight: 700, color: 'white', marginBottom: '2px' }}>{p.title}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748b', fontFamily: 'monospace' }}>/{p.slug}</div>
-                        </td>
-                        <td>
-                          <span style={{ background: '#0f172a', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', color: '#38bdf8', fontWeight: 600, border: '1px solid #1e293b' }}>
-                            {p.category}
-                          </span>
-                        </td>
-                        <td style={{ fontWeight: 600, color: '#f1f5f9' }}>{(p.views || 0).toLocaleString()}</td>
-                        <td style={{ fontSize: '0.82rem', color: '#94a3b8' }}>{p.created_at ? p.created_at.split(' ')[0] : 'Today'}</td>
-                        <td>
-                          <span className={`status-badge ${p.status}`}>
-                            {p.status}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                            <a href={`https://rrbgroupdanswerkey.pages.dev/${p.slug}`} target="_blank" rel="noopener noreferrer" className="btn-icon" title="Preview Article">
-                              <ExternalLink style={{ width: '15px', height: '15px' }} />
-                            </a>
-                            <button className="btn-icon btn-edit" title="Edit Article" onClick={() => handleEditPost(p)}>
-                              <Edit3 style={{ width: '15px', height: '15px' }} />
-                            </button>
-                            <button className="btn-icon btn-delete" title="Delete Article" onClick={() => handleDeletePost(p.id)}>
-                              <Trash2 style={{ width: '15px', height: '15px' }} />
-                            </button>
+                  </thead>
+                  <tbody>
+                    {filteredPosts.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="articles-empty-td">
+                          <div className="articles-empty-state">
+                            <div className="empty-icon-box">
+                              <FileText style={{ width: '32px', height: '32px', color: '#64748b' }} />
+                            </div>
+                            <h4 style={{ color: 'white', margin: '14px 0 6px 0', fontSize: '1.1rem', fontWeight: 700 }}>
+                              No articles found
+                            </h4>
+                            <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.88rem', maxWidth: '380px' }}>
+                              {searchQuery || statusFilter !== 'all' || categoryFilter !== 'all'
+                                ? 'No articles match your search or filter criteria. Try resetting your filters.'
+                                : 'You have not created any articles yet. Click "Create Article" to get started!'}
+                            </p>
+                            {(searchQuery || statusFilter !== 'all' || categoryFilter !== 'all') && (
+                              <button
+                                type="button"
+                                className="btn btn-secondary btn-sm"
+                                style={{ marginTop: '14px' }}
+                                onClick={() => {
+                                  setSearchQuery('');
+                                  setStatusFilter('all');
+                                  setCategoryFilter('all');
+                                }}
+                              >
+                                <RotateCcw style={{ width: '14px', height: '14px' }} /> Clear Filters
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      filteredPosts.map((p) => (
+                        <tr key={p.id} className="article-row">
+                          {/* 1. Cover Image Thumbnail */}
+                          <td className="article-thumb-cell">
+                            {p.cover_image ? (
+                              <div
+                                className="article-thumb-preview-box"
+                                onClick={() =>
+                                  setPreviewImage({
+                                    url: p.cover_image!,
+                                    title: p.title,
+                                    slug: p.slug,
+                                    category: p.category,
+                                  })
+                                }
+                                title="Click to preview cover image"
+                              >
+                                <img
+                                  src={p.cover_image}
+                                  alt={p.title}
+                                  className="article-thumb-image"
+                                  loading="lazy"
+                                />
+                                <div className="article-thumb-hover-overlay">
+                                  <ZoomIn style={{ width: '16px', height: '16px', color: '#ffffff' }} />
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="article-thumb-empty-box" title="No cover image set">
+                                <ImageIcon style={{ width: '18px', height: '18px', color: '#64748b' }} />
+                                <span>No Img</span>
+                              </div>
+                            )}
+                          </td>
+
+                          {/* 2. Article Title & Slug */}
+                          <td>
+                            <div
+                              className="article-title-text"
+                              onClick={() => handleEditPost(p)}
+                              title="Click to edit article"
+                            >
+                              {p.title}
+                            </div>
+                            <div className="article-slug-row">
+                              <span className="article-slug-text">/{p.slug}</span>
+                              <a
+                                href={`https://rrbgroupdanswerkey.pages.dev/${p.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="article-slug-link-icon"
+                                title="View live article"
+                              >
+                                <ExternalLink style={{ width: '12px', height: '12px' }} />
+                              </a>
+                            </div>
+                          </td>
+
+                          {/* 3. Category */}
+                          <td>
+                            <span className="article-category-badge">
+                              {p.category}
+                            </span>
+                          </td>
+
+                          {/* 4. Views */}
+                          <td>
+                            <div className="article-views-cell">
+                              <Eye style={{ width: '14px', height: '14px', color: '#38bdf8' }} />
+                              <span>{(p.views || 0).toLocaleString()}</span>
+                            </div>
+                          </td>
+
+                          {/* 5. Date */}
+                          <td>
+                            <div className="article-date-cell">
+                              <Calendar style={{ width: '13px', height: '13px', color: '#64748b' }} />
+                              <span>{p.created_at ? p.created_at.split(' ')[0] : 'Today'}</span>
+                            </div>
+                          </td>
+
+                          {/* 6. Status */}
+                          <td>
+                            <span className={`status-badge ${p.status}`}>
+                              <span className="status-indicator-dot" />
+                              {p.status}
+                            </span>
+                          </td>
+
+                          {/* 7. Action Buttons */}
+                          <td style={{ textAlign: 'right' }}>
+                            <div className="articles-action-buttons">
+                              <a
+                                href={`https://rrbgroupdanswerkey.pages.dev/${p.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-table-action btn-table-preview"
+                                title="Preview Live Website"
+                              >
+                                <ExternalLink style={{ width: '14px', height: '14px' }} />
+                              </a>
+                              {p.cover_image && (
+                                <button
+                                  type="button"
+                                  className="btn-table-action btn-table-image"
+                                  title="Preview Cover Image"
+                                  onClick={() =>
+                                    setPreviewImage({
+                                      url: p.cover_image!,
+                                      title: p.title,
+                                      slug: p.slug,
+                                      category: p.category,
+                                    })
+                                  }
+                                >
+                                  <ImageIcon style={{ width: '14px', height: '14px' }} />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="btn-table-action btn-table-edit"
+                                title="Edit Article"
+                                onClick={() => handleEditPost(p)}
+                              >
+                                <Edit3 style={{ width: '14px', height: '14px' }} />
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-table-action btn-table-delete"
+                                title="Delete Article"
+                                onClick={() => handleDeletePost(p.id)}
+                              >
+                                <Trash2 style={{ width: '14px', height: '14px' }} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* MOBILE ADAPTIVE CARDS VIEW (<= 640px) */}
+              <div className="articles-mobile-cards-container">
+                {filteredPosts.length === 0 ? (
+                  <div className="articles-empty-state">
+                    <div className="empty-icon-box">
+                      <FileText style={{ width: '32px', height: '32px', color: '#64748b' }} />
+                    </div>
+                    <h4 style={{ color: 'white', margin: '12px 0 4px 0', fontSize: '1.05rem', fontWeight: 700 }}>
+                      No articles found
+                    </h4>
+                    <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.84rem' }}>
+                      No articles match your criteria.
+                    </p>
+                    {(searchQuery || statusFilter !== 'all' || categoryFilter !== 'all') && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        style={{ marginTop: '12px' }}
+                        onClick={() => {
+                          setSearchQuery('');
+                          setStatusFilter('all');
+                          setCategoryFilter('all');
+                        }}
+                      >
+                        <RotateCcw style={{ width: '13px', height: '13px' }} /> Reset Filters
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  filteredPosts.map((p) => (
+                    <div key={p.id} className="article-mobile-item-card">
+                      {/* Top Row: Thumbnail + Info */}
+                      <div className="article-mobile-item-top">
+                        {p.cover_image ? (
+                          <div
+                            className="article-mobile-item-thumb"
+                            onClick={() =>
+                              setPreviewImage({
+                                url: p.cover_image!,
+                                title: p.title,
+                                slug: p.slug,
+                                category: p.category,
+                              })
+                            }
+                            title="Tap to preview image"
+                          >
+                            <img src={p.cover_image} alt={p.title} loading="lazy" />
+                            <div className="article-mobile-thumb-badge">
+                              <ZoomIn style={{ width: '11px', height: '11px' }} />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="article-mobile-item-thumb empty">
+                            <ImageIcon style={{ width: '18px', height: '18px', color: '#64748b' }} />
+                          </div>
+                        )}
+
+                        <div className="article-mobile-item-details">
+                          <div
+                            className="article-mobile-item-title"
+                            onClick={() => handleEditPost(p)}
+                          >
+                            {p.title}
+                          </div>
+                          <div className="article-mobile-item-slug">/{p.slug}</div>
+                          <div className="article-mobile-item-badges">
+                            <span className={`status-badge ${p.status}`}>
+                              <span className="status-indicator-dot" />
+                              {p.status}
+                            </span>
+                            <span className="article-category-badge small">
+                              {p.category}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Meta Row: Views & Date */}
+                      <div className="article-mobile-item-meta">
+                        <div className="meta-stat">
+                          <Eye style={{ width: '13px', height: '13px', color: '#38bdf8' }} />
+                          <span>{(p.views || 0).toLocaleString()} views</span>
+                        </div>
+                        <div className="meta-stat">
+                          <Calendar style={{ width: '13px', height: '13px', color: '#64748b' }} />
+                          <span>{p.created_at ? p.created_at.split(' ')[0] : 'Today'}</span>
+                        </div>
+                      </div>
+
+                      {/* Actions Grid */}
+                      <div className="article-mobile-item-actions">
+                        <a
+                          href={`https://rrbgroupdanswerkey.pages.dev/${p.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-mobile-card-action live"
+                        >
+                          <ExternalLink style={{ width: '13px', height: '13px' }} />
+                          <span>Live</span>
+                        </a>
+                        {p.cover_image && (
+                          <button
+                            type="button"
+                            className="btn-mobile-card-action image"
+                            onClick={() =>
+                              setPreviewImage({
+                                url: p.cover_image!,
+                                title: p.title,
+                                slug: p.slug,
+                                category: p.category,
+                              })
+                            }
+                          >
+                            <ImageIcon style={{ width: '13px', height: '13px' }} />
+                            <span>Image</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="btn-mobile-card-action edit"
+                          onClick={() => handleEditPost(p)}
+                        >
+                          <Edit3 style={{ width: '13px', height: '13px' }} />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-mobile-card-action delete"
+                          onClick={() => handleDeletePost(p.id)}
+                        >
+                          <Trash2 style={{ width: '13px', height: '13px' }} />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -1408,7 +1800,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   <TinyEditor
                     tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.0/tinymce.min.js"
                     value={content}
-                    onEditorChange={(newContent) => setContent(newContent)}
+                    onEditorChange={(newContent: string) => setContent(newContent)}
                     init={{
                       height: 560,
                       menubar: 'file edit view insert format tools table help',
@@ -1913,6 +2305,111 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         )}
         </div>
       </main>
+
+      {/* IMAGE PREVIEW LIGHTBOX MODAL */}
+      {previewImage && (
+        <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-modal-card" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="image-preview-header">
+              <div className="image-preview-title-block">
+                <div className="image-preview-badge-pill">
+                  <ImageIcon style={{ width: '13px', height: '13px' }} />
+                  <span>Cover Image Preview</span>
+                </div>
+                <h3 className="image-preview-title" title={previewImage.title}>
+                  {previewImage.title}
+                </h3>
+                {previewImage.slug && (
+                  <div className="image-preview-slug">/{previewImage.slug}</div>
+                )}
+              </div>
+              <button
+                type="button"
+                className="image-preview-close-btn"
+                onClick={() => setPreviewImage(null)}
+                aria-label="Close image preview"
+              >
+                <X style={{ width: '18px', height: '18px' }} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="image-preview-body">
+              <div className="image-preview-frame">
+                <img
+                  src={previewImage.url}
+                  alt={previewImage.title}
+                  className="image-preview-img"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                    const errEl = (e.target as HTMLElement).parentElement?.querySelector('.image-preview-broken');
+                    if (errEl) (errEl as HTMLElement).style.display = 'flex';
+                  }}
+                />
+                <div className="image-preview-broken" style={{ display: 'none' }}>
+                  <AlertCircle style={{ width: '36px', height: '36px', color: '#ef4444' }} />
+                  <p style={{ color: '#cbd5e1', marginTop: '10px', fontSize: '0.9rem' }}>
+                    Unable to load preview for this image URL.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="image-preview-footer">
+              <div className="image-preview-meta-info">
+                <span className="image-url-preview-tag" title={previewImage.url}>
+                  {previewImage.url.startsWith('data:')
+                    ? 'Uploaded File (Base64 Encoded)'
+                    : previewImage.url}
+                </span>
+              </div>
+              <div className="image-preview-footer-btns">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(previewImage.url);
+                    setCopiedImageLink(true);
+                    setTimeout(() => setCopiedImageLink(false), 2000);
+                  }}
+                >
+                  {copiedImageLink ? (
+                    <>
+                      <Check style={{ width: '14px', height: '14px', color: '#34d399' }} />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy style={{ width: '14px', height: '14px' }} />
+                      <span>Copy URL</span>
+                    </>
+                  )}
+                </button>
+                {!previewImage.url.startsWith('data:') && (
+                  <a
+                    href={previewImage.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <ExternalLink style={{ width: '14px', height: '14px' }} />
+                    <span>Open Full</span>
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setPreviewImage(null)}
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CATEGORY MODAL */}
       {showCatModal && (
