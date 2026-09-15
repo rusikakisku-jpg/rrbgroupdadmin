@@ -2479,6 +2479,95 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           </div>
         </div>
       )}
+
+      {/* IMAGE PREVIEW LIGHTBOX MODAL */}
+      {previewImage && (
+        <div className="image-preview-overlay" onClick={() => setPreviewImage(null)}>
+          <div className="image-preview-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="image-preview-header">
+              <div className="image-preview-title-block">
+                <div className="image-preview-badge-pill">
+                  <ImageIcon style={{ width: '13px', height: '13px' }} />
+                  <span>Cover Image Preview</span>
+                </div>
+                <h3 className="image-preview-title">{previewImage.title}</h3>
+                {previewImage.slug && (
+                  <div className="image-preview-slug">/{previewImage.slug}</div>
+                )}
+              </div>
+              <button
+                type="button"
+                className="image-preview-close-btn"
+                onClick={() => setPreviewImage(null)}
+                aria-label="Close image preview"
+              >
+                <X style={{ width: '20px', height: '20px' }} />
+              </button>
+            </div>
+
+            <div className="image-preview-body">
+              <div className="image-preview-frame">
+                <img
+                  src={previewImage.url}
+                  alt={previewImage.title}
+                  className="image-preview-img"
+                />
+              </div>
+            </div>
+
+            <div className="image-preview-footer">
+              <div className="image-preview-meta-info">
+                <span className="image-url-preview-tag" title={previewImage.url}>
+                  {previewImage.url.startsWith('data:')
+                    ? 'Uploaded File (Base64 Data)'
+                    : previewImage.url}
+                </span>
+              </div>
+              <div className="image-preview-footer-btns">
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(previewImage.url);
+                    setCopiedImageLink(true);
+                    setTimeout(() => setCopiedImageLink(false), 2000);
+                  }}
+                >
+                  {copiedImageLink ? (
+                    <>
+                      <Check style={{ width: '14px', height: '14px', color: '#10b981' }} />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy style={{ width: '14px', height: '14px' }} />
+                      <span>Copy URL</span>
+                    </>
+                  )}
+                </button>
+                {!previewImage.url.startsWith('data:') && (
+                  <a
+                    href={previewImage.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary btn-sm"
+                  >
+                    <ExternalLink style={{ width: '14px', height: '14px' }} />
+                    <span>Open Full</span>
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setPreviewImage(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

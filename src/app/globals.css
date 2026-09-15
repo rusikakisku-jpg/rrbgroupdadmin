@@ -1228,14 +1228,13 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   background-color: #0f172a;
   border: 1px solid #334155;
   border-radius: 12px;
-  padding: 11px 16px;
+  padding: 11px 34px 11px 16px;
   color: #cbd5e1;
   font-size: 0.88rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   appearance: none;
-  padding-right: 32px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
@@ -1889,15 +1888,6 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   border-radius: 12px;
   border: 1px solid #334155;
   box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
-}
-
-.image-preview-broken {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
 }
 
 .image-preview-footer {
