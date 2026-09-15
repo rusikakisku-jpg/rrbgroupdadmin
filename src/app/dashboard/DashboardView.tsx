@@ -953,64 +953,43 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               </div>
             </div>
 
-            {/* Quick Overview Grid */}
-            <div className="dashboard-overview-grid" style={{ display: 'grid', gap: '25px' }}>
-              <div className="admin-card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                  <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Recent Articles</h3>
-                  <button className="btn btn-secondary" onClick={() => handleTabChange('list')} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
-                    View All →
-                  </button>
-                </div>
-                <div className="table-container">
-                  <table className="admin-table">
-                    <thead>
-                      <tr>
-                        <th>Title</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {posts.slice(0, 5).map((p) => (
-                        <tr key={p.id}>
-                          <td style={{ fontWeight: 600, color: 'white' }}>{p.title}</td>
-                          <td><span style={{ background: '#0f172a', padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>{p.category}</span></td>
-                          <td>
-                            <span className={`status-badge ${p.status}`}>
-                              {p.status}
-                            </span>
-                          </td>
-                          <td>
-                            <button className="btn-icon btn-edit" onClick={() => handleEditPost(p)}>
-                              <Edit3 style={{ width: '14px', height: '14px' }} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+            {/* Recent Articles Card */}
+            <div className="admin-card">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Recent Articles</h3>
+                <button className="btn btn-secondary" onClick={() => handleTabChange('list')} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>
+                  View All →
+                </button>
               </div>
-
-              {/* Quick Actions Card */}
-              <div className="admin-card">
-                <h3 style={{ fontSize: '1.1rem', color: 'white', marginTop: 0, marginBottom: '20px', fontWeight: 700 }}>Quick Actions</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <button className="btn btn-primary" onClick={handleOpenAddForm} style={{ justifyContent: 'center', width: '100%' }}>
-                    <PlusCircle style={{ width: '18px', height: '18px' }} /> Create New Article
-                  </button>
-                  <button className="btn btn-secondary" onClick={() => handleTabChange('categories')} style={{ justifyContent: 'center', width: '100%' }}>
-                    <Tags style={{ width: '18px', height: '18px' }} /> Manage Categories
-                  </button>
-                  <button className="btn btn-secondary" onClick={() => handleTabChange('menu')} style={{ justifyContent: 'center', width: '100%' }}>
-                    <MenuIcon style={{ width: '18px', height: '18px' }} /> Manage Header Menu
-                  </button>
-                  <button className="btn btn-secondary" onClick={() => handleTabChange('settings')} style={{ justifyContent: 'center', width: '100%' }}>
-                    <Settings style={{ width: '18px', height: '18px' }} /> Website Settings
-                  </button>
-                </div>
+              <div className="table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {posts.slice(0, 5).map((p) => (
+                      <tr key={p.id}>
+                        <td style={{ fontWeight: 600, color: 'white' }}>{p.title}</td>
+                        <td><span style={{ background: '#0f172a', padding: '3px 8px', borderRadius: '4px', fontSize: '0.8rem', color: '#94a3b8' }}>{p.category}</span></td>
+                        <td>
+                          <span className={`status-badge ${p.status}`}>
+                            {p.status}
+                          </span>
+                        </td>
+                        <td>
+                          <button className="btn-icon btn-edit" onClick={() => handleEditPost(p)}>
+                            <Edit3 style={{ width: '14px', height: '14px' }} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </>
