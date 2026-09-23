@@ -1715,418 +1715,427 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
               </div>
             </div>
 
-            {/* 2-Column Responsive Layout */}
+            {/* Unified Single-Column Editorial Workflow */}
             <div className="editor-layout-grid">
-              {/* Left Main Column: Creative Writing Area */}
-              <div className="editor-main-column">
-                {/* 1. Article Title & Permalink Card */}
-                <div className="editor-card">
-                  <div className="form-group editor-title-group">
-                    <div className="editor-field-header">
-                      <label className="form-label editor-label">
-                        Article Title <span className="req-star">*</span>
-                      </label>
-                      <span className="editor-char-counter">
-                        {title.length} characters
-                      </span>
-                    </div>
+              {/* 1. Article Title, Permalink & Classification Card */}
+              <div className="editor-card">
+                <div className="sidebar-card-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FileText style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
+                    <h4>Article Information &amp; Classification</h4>
+                  </div>
+                </div>
+
+                {/* 1.1 Article Title */}
+                <div className="form-group editor-title-group">
+                  <div className="editor-field-header">
+                    <label className="form-label editor-label">
+                      Article Title <span className="req-star">*</span>
+                    </label>
+                    <span className="editor-char-counter">
+                      {title.length} characters
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    className="form-control editor-title-input"
+                    placeholder="Enter a clear, engaging article title..."
+                    value={title}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      setTitle(newTitle);
+                      if (!isSlugManuallyEdited) {
+                        setSlug(generateSeoSlug(newTitle, editId, posts));
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* 1.2 Custom Slug / Permalink with Interactive URL Bar */}
+                <div className="form-group editor-slug-group">
+                  <div className="editor-field-header">
+                    <label className="form-label editor-label" style={{ margin: 0 }}>
+                      Permalink URL Slug <span className="req-star">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      className="editor-resync-slug-btn"
+                      onClick={() => {
+                        const autoSlug = generateSeoSlug(title, editId, posts);
+                        setSlug(autoSlug);
+                        setIsSlugManuallyEdited(false);
+                        showSuccess('SEO Slug re-generated from title!');
+                      }}
+                      title="Re-generate URL slug automatically from the current article title"
+                    >
+                      <RotateCcw style={{ width: '12px', height: '12px' }} />
+                      <span>Re-sync Title</span>
+                    </button>
+                  </div>
+
+                  <div className="editor-slug-input-wrapper">
+                    <span className="editor-slug-prefix">
+                      rrbgroupdanswerkey.pages.dev/
+                    </span>
                     <input
                       type="text"
                       required
-                      className="form-control editor-title-input"
-                      placeholder="Enter a clear, engaging article title..."
-                      value={title}
+                      className="form-control editor-slug-input"
+                      placeholder="article-slug-url"
+                      value={slug}
                       onChange={(e) => {
-                        const newTitle = e.target.value;
-                        setTitle(newTitle);
-                        if (!isSlugManuallyEdited) {
-                          setSlug(generateSeoSlug(newTitle, editId, posts));
-                        }
+                        setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'));
+                        setIsSlugManuallyEdited(true);
                       }}
                     />
                   </div>
 
-                  {/* 2. Custom Slug / Permalink with Interactive URL Bar */}
-                  <div className="form-group editor-slug-group">
-                    <div className="editor-field-header">
-                      <label className="form-label editor-label" style={{ margin: 0 }}>
-                        Permalink URL Slug <span className="req-star">*</span>
-                      </label>
-                      <button
-                        type="button"
-                        className="editor-resync-slug-btn"
-                        onClick={() => {
-                          const autoSlug = generateSeoSlug(title, editId, posts);
-                          setSlug(autoSlug);
-                          setIsSlugManuallyEdited(false);
-                          showSuccess('SEO Slug re-generated from title!');
-                        }}
-                        title="Re-generate URL slug automatically from the current article title"
-                      >
-                        <RotateCcw style={{ width: '12px', height: '12px' }} />
-                        <span>Re-sync Title</span>
-                      </button>
-                    </div>
-
-                    <div className="editor-slug-input-wrapper">
-                      <span className="editor-slug-prefix">
-                        rrbgroupdanswerkey.pages.dev/
-                      </span>
-                      <input
-                        type="text"
-                        required
-                        className="form-control editor-slug-input"
-                        placeholder="article-slug-url"
-                        value={slug}
-                        onChange={(e) => {
-                          setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-'));
-                          setIsSlugManuallyEdited(true);
-                        }}
-                      />
-                    </div>
-
-                    <div className="editor-slug-status-hint">
-                      {posts.some((p) => p.id !== editId && p.slug === slug) ? (
-                        <div className="slug-hint-warning">
-                          <AlertCircle style={{ width: '14px', height: '14px' }} />
-                          <span>Slug already in use by another article. A unique counter (-2, -3) will be appended automatically.</span>
-                        </div>
-                      ) : (
-                        <div className="slug-hint-success">
-                          <CheckCircle style={{ width: '14px', height: '14px' }} />
-                          <span>SEO URL is clean &amp; unique: <code>/{slug || 'your-slug'}</code></span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* 3. Short Excerpt & Meta Description */}
-                  <div className="form-group editor-excerpt-group" style={{ marginBottom: 0 }}>
-                    <div className="editor-field-header">
-                      <label className="form-label editor-label">
-                        Post Excerpt &amp; Meta Description
-                      </label>
-                      <span className="editor-char-counter">
-                        {excerpt.length}/160 chars (Recommended: 120-160)
-                      </span>
-                    </div>
-                    <textarea
-                      rows={3}
-                      className="form-control editor-excerpt-textarea"
-                      placeholder="Write a concise overview of the article. This is used as the Google Search Meta Description and post card summary (defaults to first 160 chars of content if empty)..."
-                      value={excerpt}
-                      onChange={(e) => setExcerpt(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* 2. Content Editor Card (TinyMCE Visual / Raw HTML) */}
-                <div className="editor-card">
-                  <div className="editor-content-card-header">
-                    <div className="editor-section-heading">
-                      <FileText style={{ width: '18px', height: '18px', color: '#38bdf8' }} />
-                      <span>Article Content &amp; Formatting</span>
-                      <span className="req-star">*</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      className={`editor-mode-toggle-btn ${isRawHtmlMode ? 'active-code' : 'active-visual'}`}
-                      onClick={() => setIsRawHtmlMode(!isRawHtmlMode)}
-                      title={isRawHtmlMode ? 'Switch to TinyMCE Visual Editor' : 'Switch to Raw HTML Code Editor'}
-                    >
-                      {isRawHtmlMode ? (
-                        <>
-                          <Edit style={{ width: '14px', height: '14px' }} />
-                          <span>Switch to Visual Editor</span>
-                        </>
-                      ) : (
-                        <>
-                          <Code style={{ width: '14px', height: '14px' }} />
-                          <span>Switch to Raw HTML</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {isRawHtmlMode ? (
-                    <div className="editor-raw-html-container">
-                      <div className="raw-html-header-strip">
-                        <span className="raw-html-tag">&lt;/&gt; Raw HTML Source Code</span>
-                        <span className="raw-html-hint">Direct HTML tags, embeds, tables, and scripts are supported</span>
+                  <div className="editor-slug-status-hint">
+                    {posts.some((p) => p.id !== editId && p.slug === slug) ? (
+                      <div className="slug-hint-warning">
+                        <AlertCircle style={{ width: '14px', height: '14px' }} />
+                        <span>Slug already in use by another article. A unique counter (-2, -3) will be appended automatically.</span>
                       </div>
-                      <textarea
-                        rows={22}
-                        required
-                        className="form-control editor-raw-html-textarea"
-                        placeholder="Write or paste your custom HTML code here..."
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                      />
-                    </div>
-                  ) : (
-                    <div className="editor-tinymce-container">
-                      <TinyEditor
-                        tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.0/tinymce.min.js"
-                        value={content}
-                        onEditorChange={(newContent: string) => setContent(newContent)}
-                        init={{
-                          height: 580,
-                          menubar: 'file edit view insert format tools table help',
-                          skin: 'oxide-dark',
-                          content_css: 'dark',
-                          plugins: [
-                            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                            'insertdatetime', 'media', 'table', 'help', 'wordcount', 'directionality'
-                          ],
-                          toolbar: 'undo redo | blocks fontfamily fontsize | ' +
-                            'bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter ' +
-                            'alignright alignjustify | bullist numlist outdent indent | ' +
-                            'table link image media | removeformat code fullscreen | help',
-                          content_style: 'body { font-family: Plus Jakarta Sans, system-ui, -apple-system, sans-serif; font-size: 15px; color: #e2e8f0; background-color: #0f172a; line-height: 1.65; padding: 14px; } a { color: #38bdf8; } table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; } th, td { border: 1px solid #334155; padding: 8px 12px; } th { background-color: #1e293b; color: #f8fafc; font-weight: bold; }',
-                          branding: false,
-                          promotion: false,
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Right Sidebar Column: Publishing & Metadata Cards */}
-              <div className="editor-sidebar-column">
-                {/* 1. Publishing Status & Action Card */}
-                <div className="editor-sidebar-card">
-                  <div className="sidebar-card-header">
-                    <Save style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
-                    <h4>Publish Settings</h4>
-                  </div>
-
-                  {/* Status, Category & Author Fields in Responsive Row */}
-                  <div className="editor-publish-fields-grid">
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label editor-label">
-                        Publishing Status <span className="req-star">*</span>
-                      </label>
-                      <select
-                        className="form-control editor-select"
-                        value={status}
-                        onChange={(e: any) => setStatus(e.target.value)}
-                      >
-                        <option value="publish">● Published (Live Immediately)</option>
-                        <option value="draft">● Draft (Private / Unpublished)</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label editor-label">
-                        Article Category <span className="req-star">*</span>
-                      </label>
-                      <select
-                        className="form-control editor-select"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                      >
-                        {categoriesList.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label editor-label">Author Name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Admin"
-                        value={authorName}
-                        onChange={(e) => setAuthorName(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Primary Save Button in Sidebar */}
-                  <div className="sidebar-publish-actions">
-                    <button
-                      type="submit"
-                      className="btn btn-primary btn-block sidebar-publish-btn"
-                    >
-                      <Save style={{ width: '16px', height: '16px' }} />
-                      <span>{editId ? 'Update Article Now' : 'Publish Article Now'}</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary btn-block"
-                      onClick={() => handleTabChange('list')}
-                    >
-                      Cancel / Back
-                    </button>
-                  </div>
-                </div>
-
-                {/* 2. Featured Cover Image Card */}
-                <div className="editor-sidebar-card">
-                  <div className="sidebar-card-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <ImageIcon style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
-                      <h4>Cover Image</h4>
-                    </div>
-
-                    {/* Mode Toggle Switch */}
-                    <div className="cover-mode-toggle">
-                      <button
-                        type="button"
-                        className={`cover-mode-btn ${coverImageMode === 'url' ? 'active' : ''}`}
-                        onClick={() => setCoverImageMode('url')}
-                      >
-                        <Link2 style={{ width: '12px', height: '12px' }} />
-                        <span>Link</span>
-                      </button>
-                      <button
-                        type="button"
-                        className={`cover-mode-btn ${coverImageMode === 'upload' ? 'active' : ''}`}
-                        onClick={() => setCoverImageMode('upload')}
-                      >
-                        <Upload style={{ width: '12px', height: '12px' }} />
-                        <span>Upload</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {coverImageMode === 'url' ? (
-                    <div className="form-group" style={{ marginBottom: 0 }}>
-                      <label className="form-label editor-label">Image Web URL</label>
-                      <input
-                        type="url"
-                        className="form-control"
-                        placeholder="https://example.com/uploads/cover.jpg"
-                        value={coverImage}
-                        onChange={(e) => setCoverImage(e.target.value)}
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <input
-                        type="file"
-                        id="cover-file-input"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={handleImageFileUpload}
-                      />
-                      <label htmlFor="cover-file-input" className="editor-upload-dropzone">
-                        <Upload style={{ width: '28px', height: '28px', color: '#38bdf8', marginBottom: '6px' }} />
-                        <span className="dropzone-main-text">Choose Image from Device</span>
-                        <span className="dropzone-sub-text">PNG, JPG, WEBP up to 5MB</span>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* Live Cover Image Preview Box */}
-                  {coverImage ? (
-                    <div className="editor-cover-preview-card">
-                      <div
-                        className="cover-preview-img-wrap"
-                        onClick={() =>
-                          setPreviewImage({
-                            url: coverImage,
-                            title: title || 'Cover Image Preview',
-                            slug,
-                            category,
-                          })
-                        }
-                        title="Click to view full preview in lightbox"
-                      >
-                        <img src={coverImage} alt="Cover Preview" className="cover-preview-img" />
-                        <div className="cover-preview-overlay">
-                          <ZoomIn style={{ width: '18px', height: '18px', color: '#ffffff' }} />
-                          <span>Click to Zoom</span>
-                        </div>
+                    ) : (
+                      <div className="slug-hint-success">
+                        <CheckCircle style={{ width: '14px', height: '14px' }} />
+                        <span>SEO URL is clean &amp; unique: <code>/{slug || 'your-slug'}</code></span>
                       </div>
-
-                      <div className="cover-preview-footer-bar">
-                        <span className="cover-preview-info-tag">
-                          {coverImage.startsWith('data:') ? 'Local Base64 File' : 'External URL'}
-                        </span>
-                        <button
-                          type="button"
-                          className="cover-remove-btn"
-                          onClick={() => setCoverImage('')}
-                          title="Remove cover image"
-                        >
-                          <Trash2 style={{ width: '13px', height: '13px' }} />
-                          <span>Remove</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="editor-no-cover-box">
-                      <ImageIcon style={{ width: '24px', height: '24px', color: '#475569' }} />
-                      <span>No cover image selected</span>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
-                {/* 3. Tags & Keywords Card */}
-                <div className="editor-sidebar-card">
-                  <div className="sidebar-card-header">
-                    <Tags style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
-                    <h4>Tags &amp; Keywords</h4>
-                  </div>
+                {/* 1.3 Category & Author Fields in Responsive Row */}
+                <div className="editor-publish-fields-grid" style={{ marginBottom: '18px' }}>
                   <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label editor-label">
+                      Article Category <span className="req-star">*</span>
+                    </label>
+                    <select
+                      className="form-control editor-select"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                    >
+                      {categoriesList.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label editor-label">Author Name</label>
                     <input
                       type="text"
                       className="form-control"
-                      placeholder="e.g. RRB Group D, Answer Key, Cut Off"
-                      value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      placeholder="Admin"
+                      value={authorName}
+                      onChange={(e) => setAuthorName(e.target.value)}
                     />
-                    <span className="editor-field-hint">
-                      Separate multiple keywords with commas.
-                    </span>
                   </div>
                 </div>
 
-                {/* 4. Google Search SEO Live Preview */}
-                <div className="editor-sidebar-card">
-                  <div className="sidebar-card-header">
+                {/* 1.4 Short Excerpt & Meta Description */}
+                <div className="form-group editor-excerpt-group" style={{ marginBottom: 0 }}>
+                  <div className="editor-field-header">
+                    <label className="form-label editor-label">
+                      Post Excerpt &amp; Meta Description
+                    </label>
+                    <span className="editor-char-counter">
+                      {excerpt.length}/160 chars (Recommended: 120-160)
+                    </span>
+                  </div>
+                  <textarea
+                    rows={3}
+                    className="form-control editor-excerpt-textarea"
+                    placeholder="Write a concise overview of the article. This is used as the Google Search Meta Description and post card summary (defaults to first 160 chars of content if empty)..."
+                    value={excerpt}
+                    onChange={(e) => setExcerpt(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* 2. Featured Cover Image Card */}
+              <div className="editor-card">
+                <div className="sidebar-card-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ImageIcon style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
+                    <h4>Featured Cover Image</h4>
+                  </div>
+
+                  {/* Mode Toggle Switch */}
+                  <div className="cover-mode-toggle">
+                    <button
+                      type="button"
+                      className={`cover-mode-btn ${coverImageMode === 'url' ? 'active' : ''}`}
+                      onClick={() => setCoverImageMode('url')}
+                    >
+                      <Link2 style={{ width: '12px', height: '12px' }} />
+                      <span>Link</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`cover-mode-btn ${coverImageMode === 'upload' ? 'active' : ''}`}
+                      onClick={() => setCoverImageMode('upload')}
+                    >
+                      <Upload style={{ width: '12px', height: '12px' }} />
+                      <span>Upload</span>
+                    </button>
+                  </div>
+                </div>
+
+                {coverImageMode === 'url' ? (
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label editor-label">Image Web URL</label>
+                    <input
+                      type="url"
+                      className="form-control"
+                      placeholder="https://example.com/uploads/cover.jpg"
+                      value={coverImage}
+                      onChange={(e) => setCoverImage(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="file"
+                      id="cover-file-input"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={handleImageFileUpload}
+                    />
+                    <label htmlFor="cover-file-input" className="editor-upload-dropzone">
+                      <Upload style={{ width: '28px', height: '28px', color: '#38bdf8', marginBottom: '6px' }} />
+                      <span className="dropzone-main-text">Choose Image from Device</span>
+                      <span className="dropzone-sub-text">PNG, JPG, WEBP up to 5MB</span>
+                    </label>
+                  </div>
+                )}
+
+                {/* Live Cover Image Preview Box */}
+                {coverImage ? (
+                  <div className="editor-cover-preview-card">
+                    <div
+                      className="cover-preview-img-wrap"
+                      onClick={() =>
+                        setPreviewImage({
+                          url: coverImage,
+                          title: title || 'Cover Image Preview',
+                          slug,
+                          category,
+                        })
+                      }
+                      title="Click to view full preview in lightbox"
+                    >
+                      <img src={coverImage} alt="Cover Preview" className="cover-preview-img" />
+                      <div className="cover-preview-overlay">
+                        <ZoomIn style={{ width: '18px', height: '18px', color: '#ffffff' }} />
+                        <span>Click to Zoom</span>
+                      </div>
+                    </div>
+
+                    <div className="cover-preview-footer-bar">
+                      <span className="cover-preview-info-tag">
+                        {coverImage.startsWith('data:') ? 'Local Base64 File' : 'External URL'}
+                      </span>
+                      <button
+                        type="button"
+                        className="cover-remove-btn"
+                        onClick={() => setCoverImage('')}
+                        title="Remove cover image"
+                      >
+                        <Trash2 style={{ width: '13px', height: '13px' }} />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="editor-no-cover-box">
+                    <ImageIcon style={{ width: '24px', height: '24px', color: '#475569' }} />
+                    <span>No cover image selected</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Content Editor Card (TinyMCE Visual / Raw HTML) */}
+              <div className="editor-card">
+                <div className="editor-content-card-header">
+                  <div className="editor-section-heading">
+                    <FileText style={{ width: '18px', height: '18px', color: '#38bdf8' }} />
+                    <span>Article Content &amp; Formatting</span>
+                    <span className="req-star">*</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`editor-mode-toggle-btn ${isRawHtmlMode ? 'active-code' : 'active-visual'}`}
+                    onClick={() => setIsRawHtmlMode(!isRawHtmlMode)}
+                    title={isRawHtmlMode ? 'Switch to TinyMCE Visual Editor' : 'Switch to Raw HTML Code Editor'}
+                  >
+                    {isRawHtmlMode ? (
+                      <>
+                        <Edit style={{ width: '14px', height: '14px' }} />
+                        <span>Switch to Visual Editor</span>
+                      </>
+                    ) : (
+                      <>
+                        <Code style={{ width: '14px', height: '14px' }} />
+                        <span>Switch to Raw HTML</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {isRawHtmlMode ? (
+                  <div className="editor-raw-html-container">
+                    <div className="raw-html-header-strip">
+                      <span className="raw-html-tag">&lt;/&gt; Raw HTML Source Code</span>
+                      <span className="raw-html-hint">Direct HTML tags, embeds, tables, and scripts are supported</span>
+                    </div>
+                    <textarea
+                      rows={22}
+                      required
+                      className="form-control editor-raw-html-textarea"
+                      placeholder="Write or paste your custom HTML code here..."
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                    />
+                  </div>
+                ) : (
+                  <div className="editor-tinymce-container">
+                    <TinyEditor
+                      tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.0/tinymce.min.js"
+                      value={content}
+                      onEditorChange={(newContent: string) => setContent(newContent)}
+                      init={{
+                        height: 580,
+                        menubar: 'file edit view insert format tools table help',
+                        skin: 'oxide-dark',
+                        content_css: 'dark',
+                        plugins: [
+                          'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                          'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                          'insertdatetime', 'media', 'table', 'help', 'wordcount', 'directionality'
+                        ],
+                        toolbar: 'undo redo | blocks fontfamily fontsize | ' +
+                          'bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter ' +
+                          'alignright alignjustify | bullist numlist outdent indent | ' +
+                          'table link image media | removeformat code fullscreen | help',
+                        content_style: 'body { font-family: Plus Jakarta Sans, system-ui, -apple-system, sans-serif; font-size: 15px; color: #e2e8f0; background-color: #0f172a; line-height: 1.65; padding: 14px; } a { color: #38bdf8; } table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; } th, td { border: 1px solid #334155; padding: 8px 12px; } th { background-color: #1e293b; color: #f8fafc; font-weight: bold; }',
+                        branding: false,
+                        promotion: false,
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* 4. Tags & Keywords Card */}
+              <div className="editor-card">
+                <div className="sidebar-card-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Tags style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
+                    <h4>Tags &amp; Keywords</h4>
+                  </div>
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="e.g. RRB Group D, Answer Key, Cut Off"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                  />
+                  <span className="editor-field-hint">
+                    Separate multiple keywords with commas.
+                  </span>
+                </div>
+              </div>
+
+              {/* 5. Google Search (SERP) Live Preview Card */}
+              <div className="editor-card">
+                <div className="sidebar-card-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Globe style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
                     <h4>Google Search (SERP) Live Preview</h4>
                   </div>
+                </div>
 
-                  <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0 0 12px 0', lineHeight: 1.4 }}>
-                    Live simulation of how this article will appear on Google search results based on your Title, Permalink, and Excerpt.
+                <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+                  Live simulation of how this article will appear on Google search results based on your Title, Permalink, and Excerpt.
+                </p>
+
+                {/* Google Search Result SERP Simulator */}
+                <div className="google-serp-preview-box">
+                  <div className="serp-top-row">
+                    <span className="serp-domain">https://rrbgroupdanswerkey.com &rsaquo; {slug || 'article-slug'}</span>
+                  </div>
+                  <h5 className="serp-title">
+                    {title || 'Your Article Title Goes Here'}
+                  </h5>
+                  <p className="serp-desc">
+                    {excerpt || (content ? content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim().slice(0, 160) : '') || 'Your article summary or meta description will appear here on Google search results...'}
                   </p>
+                </div>
 
-                  {/* Google Search Result SERP Simulator */}
-                  <div className="google-serp-preview-box">
-                    <div className="serp-top-row">
-                      <span className="serp-domain">https://rrbgroupdanswerkey.com &rsaquo; {slug || 'article-slug'}</span>
-                    </div>
-                    <h5 className="serp-title">
-                      {title || 'Your Article Title Goes Here'}
-                    </h5>
-                    <p className="serp-desc">
-                      {excerpt || (content ? content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim().slice(0, 160) : '') || 'Your article summary or meta description will appear here on Google search results...'}
-                    </p>
+                <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: '#94a3b8' }}>Title Length:</span>
+                    <span style={{ fontWeight: 600, color: title.length > 60 ? '#f43f5e' : (title.length >= 40 ? '#10b981' : '#38bdf8') }}>
+                      {title.length}/60 chars
+                    </span>
                   </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: '#94a3b8' }}>Snippet Length:</span>
+                    <span style={{ fontWeight: 600, color: excerpt.length > 160 ? '#f43f5e' : (excerpt.length >= 100 ? '#10b981' : '#38bdf8') }}>
+                      {excerpt.length}/160 chars
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                  <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#94a3b8' }}>Title Length:</span>
-                      <span style={{ fontWeight: 600, color: title.length > 60 ? '#f43f5e' : (title.length >= 40 ? '#10b981' : '#38bdf8') }}>
-                        {title.length}/60 chars
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#94a3b8' }}>Snippet Length:</span>
-                      <span style={{ fontWeight: 600, color: excerpt.length > 160 ? '#f43f5e' : (excerpt.length >= 100 ? '#10b981' : '#38bdf8') }}>
-                        {excerpt.length}/160 chars
-                      </span>
-                    </div>
+              {/* 6. Publishing Status & Save Actions Card */}
+              <div className="editor-card">
+                <div className="sidebar-card-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Save style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
+                    <h4>Publishing Status &amp; Save Actions</h4>
                   </div>
+                </div>
+
+                {/* Status selection */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label className="form-label editor-label">
+                    Publishing Status <span className="req-star">*</span>
+                  </label>
+                  <select
+                    className="form-control editor-select"
+                    value={status}
+                    onChange={(e: any) => setStatus(e.target.value)}
+                  >
+                    <option value="publish">● Published (Live Immediately)</option>
+                    <option value="draft">● Draft (Private / Unpublished)</option>
+                  </select>
+                </div>
+
+                {/* Primary Save Button in Card */}
+                <div className="sidebar-publish-actions" style={{ marginTop: 0, paddingTop: '16px', borderTop: '1px solid #334155' }}>
+                  <button
+                    type="submit"
+                    className="btn btn-primary sidebar-publish-btn"
+                  >
+                    <Save style={{ width: '16px', height: '16px' }} />
+                    <span>{editId ? 'Update Article Now' : 'Publish Article Now'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => handleTabChange('list')}
+                  >
+                    Cancel / Back
+                  </button>
                 </div>
               </div>
             </div>
