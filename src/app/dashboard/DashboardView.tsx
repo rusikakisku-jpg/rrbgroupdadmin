@@ -1903,49 +1903,49 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                     <h4>Publish Settings</h4>
                   </div>
 
-                  {/* Status selection */}
-                  <div className="form-group">
-                    <label className="form-label editor-label">
-                      Publishing Status <span className="req-star">*</span>
-                    </label>
-                    <select
-                      className="form-control editor-select"
-                      value={status}
-                      onChange={(e: any) => setStatus(e.target.value)}
-                    >
-                      <option value="publish">● Published (Live Immediately)</option>
-                      <option value="draft">● Draft (Private / Unpublished)</option>
-                    </select>
-                  </div>
+                  {/* Status, Category & Author Fields in Responsive Row */}
+                  <div className="editor-publish-fields-grid">
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label editor-label">
+                        Publishing Status <span className="req-star">*</span>
+                      </label>
+                      <select
+                        className="form-control editor-select"
+                        value={status}
+                        onChange={(e: any) => setStatus(e.target.value)}
+                      >
+                        <option value="publish">● Published (Live Immediately)</option>
+                        <option value="draft">● Draft (Private / Unpublished)</option>
+                      </select>
+                    </div>
 
-                  {/* Category selection */}
-                  <div className="form-group">
-                    <label className="form-label editor-label">
-                      Article Category <span className="req-star">*</span>
-                    </label>
-                    <select
-                      className="form-control editor-select"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                    >
-                      {categoriesList.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label editor-label">
+                        Article Category <span className="req-star">*</span>
+                      </label>
+                      <select
+                        className="form-control editor-select"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                      >
+                        {categoriesList.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                  {/* Author Name */}
-                  <div className="form-group">
-                    <label className="form-label editor-label">Author Name</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Admin"
-                      value={authorName}
-                      onChange={(e) => setAuthorName(e.target.value)}
-                    />
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label className="form-label editor-label">Author Name</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Admin"
+                        value={authorName}
+                        onChange={(e) => setAuthorName(e.target.value)}
+                      />
+                    </div>
                   </div>
 
                   {/* Primary Save Button in Sidebar */}

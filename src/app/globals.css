@@ -2068,6 +2068,8 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   flex-direction: column;
   gap: 20px;
   width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
@@ -2197,22 +2199,21 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   transform: translateY(-1px);
 }
 
-/* 2-Column Responsive Workspace Grid */
+/* Single-Column Streamlined Workspace (Unified Vertical Flow - No Left-Right Split) */
 .editor-layout-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
-  align-items: start;
   width: 100%;
 }
 
 @media (min-width: 1440px) {
   .editor-layout-grid {
-    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 28px;
   }
 }
 
-/* Left Main Column: Creative Writing Canvas */
+/* Main Content Column */
 .editor-main-column {
   display: flex;
   flex-direction: column;
@@ -2490,20 +2491,20 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   background: #0f172a;
 }
 
-/* Right Sidebar Column */
+/* Secondary Settings & Metadata Section (Stacked Vertically Below) */
 .editor-sidebar-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  position: sticky;
-  top: 90px;
+  gap: 24px;
+  position: static;
+  width: 100%;
 }
 
 .editor-sidebar-card {
   background: #1e293b;
   border: 1px solid #334155;
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
 }
@@ -2533,19 +2534,33 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   cursor: pointer;
 }
 
+/* Responsive Grid for Publish Settings Fields (Status, Category, Author) */
+.editor-publish-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
 .sidebar-publish-actions {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid #334155;
 }
 
+.sidebar-publish-actions .btn {
+  width: auto !important;
+  min-width: 180px;
+}
+
 .sidebar-publish-btn {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
   font-weight: 700 !important;
-  padding: 12px !important;
+  padding: 12px 24px !important;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
   transition: all 0.2s ease;
 }
@@ -2772,18 +2787,22 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
 /* RESPONSIVE MEDIA QUERIES FOR EDITOR */
 @media (max-width: 1024px) {
   .editor-layout-grid {
-    grid-template-columns: 1fr;
     gap: 20px;
-  }
-
-  .editor-sidebar-column {
-    position: static;
   }
 }
 
 @media (max-width: 640px) {
   .editor-page-container {
     padding-bottom: 76px;
+  }
+
+  .sidebar-publish-actions {
+    flex-direction: column;
+  }
+
+  .sidebar-publish-actions .btn {
+    width: 100% !important;
+    min-width: auto;
   }
 
   .editor-top-bar {
