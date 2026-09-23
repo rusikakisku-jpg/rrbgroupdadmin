@@ -73,9 +73,9 @@ export function savePost(data: Partial<Post>): boolean {
       category: data.category || 'General',
       status: data.status || 'publish',
       views: 0,
-      created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      created_at: data.created_at || new Date().toISOString().replace('T', ' ').substring(0, 19),
       tags: data.tags || '',
-      author_name: 'Admin',
+      author_name: data.author_name || 'Admin',
     };
     db.posts.unshift(newPost);
   }

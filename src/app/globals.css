@@ -2534,6 +2534,30 @@ h1, h2, h3, h4, h5, h6, .outfit-font {
   cursor: pointer;
 }
 
+/* Date and Time Picker styling */
+.editor-date-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.editor-date-picker-input {
+  color-scheme: dark;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.editor-date-picker-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.85) brightness(1.2);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.editor-date-picker-input::-webkit-calendar-picker-indicator:hover {
+  background: rgba(56, 189, 248, 0.2);
+}
+
 /* Responsive Grid for Publish Settings Fields (Status, Category, Author) */
 .editor-publish-fields-grid {
   display: grid;

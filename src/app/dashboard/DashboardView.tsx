@@ -113,6 +113,61 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [tags, setTags] = useState('');
   const [authorName, setAuthorName] = useState('Admin');
   const [isRawHtmlMode, setIsRawHtmlMode] = useState(false);
+  const [publishDate, setPublishDate] = useState<string>(() => {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  });
+
+  // Date Format Helpers
+  const formatForDateTimeLocal = (dateStr?: string | null): string => {
+    if (!dateStr) {
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    }
+    const clean = String(dateStr).trim();
+    if (clean.includes('T')) {
+      return clean.substring(0, 16);
+    }
+    if (clean.includes(' ')) {
+      return clean.replace(' ', 'T').substring(0, 16);
+    }
+    return `${clean}T12:00`;
+  };
+
+  const formatForDatabase = (dateTimeLocalStr: string): string => {
+    if (!dateTimeLocalStr) {
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
+    if (dateTimeLocalStr.includes('T')) {
+      const [d, t] = dateTimeLocalStr.split('T');
+      const timeWithSec = t.length === 5 ? `${t}:00` : t;
+      return `${d} ${timeWithSec}`;
+    }
+    return dateTimeLocalStr;
+  };
+
+  const formatReadableDate = (dateStr: string): string => {
+    if (!dateStr) return 'Current date & time';
+    try {
+      const iso = dateStr.includes(' ') ? dateStr.replace(' ', 'T') : dateStr;
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+    } catch {
+      return dateStr;
+    }
+  };
 
   // SEO-friendly and unique slug generator
   const generateSeoSlug = (rawTitle: string, currentId: number | null = editId, allPosts: Post[] = posts): string => {
@@ -354,6 +409,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             setContent(targetPost.content || '');
             setTags(targetPost.tags || '');
             setAuthorName(targetPost.author_name || 'Admin');
+            setPublishDate(formatForDateTimeLocal(targetPost.created_at));
             setActiveTab('edit');
           }
         }
@@ -397,6 +453,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           setContent(targetPost.content || '');
           setTags(targetPost.tags || '');
           setAuthorName(targetPost.author_name || 'Admin');
+          setPublishDate(formatForDateTimeLocal(targetPost.created_at));
           setActiveTab('edit');
         }
       }
@@ -417,6 +474,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setContent('');
     setTags('');
     setAuthorName('Admin');
+    setPublishDate(formatForDateTimeLocal());
     setIsRawHtmlMode(false);
     setActiveTab('add');
     setMobileMenuOpen(false);
@@ -439,6 +497,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setContent(p.content || '');
     setTags(p.tags || '');
     setAuthorName(p.author_name || 'Admin');
+    setPublishDate(formatForDateTimeLocal(p.created_at));
     setIsRawHtmlMode(false);
     setActiveTab('edit');
     setMobileMenuOpen(false);
@@ -553,6 +612,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           content,
           tags: tags.trim(),
           author_name: authorName.trim() || 'Admin',
+          created_at: formatForDatabase(publishDate),
         }),
       });
 
@@ -2105,19 +2165,57 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   </div>
                 </div>
 
-                {/* Status selection */}
-                <div className="form-group" style={{ marginBottom: '16px' }}>
-                  <label className="form-label editor-label">
-                    Publishing Status <span className="req-star">*</span>
-                  </label>
-                  <select
-                    className="form-control editor-select"
-                    value={status}
-                    onChange={(e: any) => setStatus(e.target.value)}
-                  >
-                    <option value="publish">● Published (Live Immediately)</option>
-                    <option value="draft">● Draft (Private / Unpublished)</option>
-                  </select>
+                {/* Status & Publish Date in a Responsive Row */}
+                <div className="editor-publish-fields-grid" style={{ marginBottom: '18px' }}>
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label editor-label">
+                      Publishing Status <span className="req-star">*</span>
+                    </label>
+                    <select
+                      className="form-control editor-select"
+                      value={status}
+                      onChange={(e: any) => setStatus(e.target.value)}
+                    >
+                      <option value="publish">● Published (Live Immediately)</option>
+                      <option value="draft">● Draft (Private / Unpublished)</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <div className="editor-field-header">
+                      <label className="form-label editor-label" style={{ margin: 0 }}>
+                        Publish Date &amp; Time <span className="req-star">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        className="editor-resync-slug-btn"
+                        onClick={() => {
+                          const now = new Date();
+                          const pad = (n: number) => String(n).padStart(2, '0');
+                          setPublishDate(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
+                          showSuccess('Date reset to current time!');
+                        }}
+                        title="Set to current date and time"
+                      >
+                        <Calendar style={{ width: '12px', height: '12px' }} />
+                        <span>Set to Now</span>
+                      </button>
+                    </div>
+                    <div className="editor-date-input-wrapper">
+                      <input
+                        type="datetime-local"
+                        required
+                        className="form-control editor-date-picker-input"
+                        value={publishDate}
+                        onChange={(e) => setPublishDate(e.target.value)}
+                        onClick={(e) => (e.target as any).showPicker?.()}
+                      />
+                    </div>
+                    <span className="editor-field-hint" style={{ marginTop: '5px', display: 'flex', alignItems: 'center', gap: '5px', color: '#94a3b8' }}>
+                      <Calendar style={{ width: '12px', height: '12px', color: '#38bdf8' }} />
+                      <span>Selected: <strong style={{ color: '#38bdf8' }}>{formatReadableDate(publishDate)}</strong></span>
+                    </span>
+                  </div>
                 </div>
 
                 {/* Primary Save Button in Card */}
