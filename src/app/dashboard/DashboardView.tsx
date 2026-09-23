@@ -383,27 +383,64 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           });
         }
 
-        // Apply locally stored comment status overrides & deleted IDs
+        // Filter out any comments marked deleted in D1 database settings or local override
+        let deletedIds: number[] = [];
+        try {
+          if (currentSettings && currentSettings.deleted_comment_ids) {
+            const parsed = typeof currentSettings.deleted_comment_ids === 'string'
+              ? JSON.parse(currentSettings.deleted_comment_ids)
+              : currentSettings.deleted_comment_ids;
+            if (Array.isArray(parsed)) {
+              deletedIds = [...deletedIds, ...parsed];
+            }
+          }
+        } catch (_) {}
+
         if (typeof window !== 'undefined') {
           try {
-            const deletedRaw = localStorage.getItem('rrb_deleted_comment_ids');
-            if (deletedRaw) {
-              const deletedIds = JSON.parse(deletedRaw);
-              if (Array.isArray(deletedIds) && deletedIds.length > 0) {
-                liveComments = liveComments.filter((c) => !deletedIds.includes(c.id));
-              }
-            }
-
-            const approvedRaw = localStorage.getItem('rrb_approved_comment_ids');
-            if (approvedRaw) {
-              const approvedIds = JSON.parse(approvedRaw);
-              if (Array.isArray(approvedIds) && approvedIds.length > 0) {
-                liveComments = liveComments.map((c) =>
-                  approvedIds.includes(c.id) ? { ...c, status: 'approved' as const } : c
-                );
+            const localDeleted = localStorage.getItem('rrb_deleted_comment_ids');
+            if (localDeleted) {
+              const parsedLocal = JSON.parse(localDeleted);
+              if (Array.isArray(parsedLocal)) {
+                deletedIds = [...deletedIds, ...parsedLocal];
               }
             }
           } catch (_) {}
+        }
+
+        if (deletedIds.length > 0) {
+          liveComments = liveComments.filter((c) => !deletedIds.includes(c.id));
+        }
+
+        // Apply approved status overrides from D1 database settings & local storage
+        let approvedIds: number[] = [];
+        try {
+          if (currentSettings && currentSettings.approved_comment_ids) {
+            const parsed = typeof currentSettings.approved_comment_ids === 'string'
+              ? JSON.parse(currentSettings.approved_comment_ids)
+              : currentSettings.approved_comment_ids;
+            if (Array.isArray(parsed)) {
+              approvedIds = [...approvedIds, ...parsed];
+            }
+          }
+        } catch (_) {}
+
+        if (typeof window !== 'undefined') {
+          try {
+            const localApproved = localStorage.getItem('rrb_approved_comment_ids');
+            if (localApproved) {
+              const parsedLocal = JSON.parse(localApproved);
+              if (Array.isArray(parsedLocal)) {
+                approvedIds = [...approvedIds, ...parsedLocal];
+              }
+            }
+          } catch (_) {}
+        }
+
+        if (approvedIds.length > 0) {
+          liveComments = liveComments.map((c) =>
+            approvedIds.includes(c.id) ? { ...c, status: 'approved' as const } : c
+          );
         }
 
         setComments(liveComments);
@@ -3156,11 +3193,26 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                                 style={{ color: '#34d399', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
                                 title="Approve Comment"
                                 onClick={async () => {
+                                  let currentApproved: number[] = [];
+                                  if (settingsMap && settingsMap.approved_comment_ids) {
+                                    try {
+                                      const p = JSON.parse(settingsMap.approved_comment_ids);
+                                      if (Array.isArray(p)) currentApproved = p;
+                                    } catch (_) {}
+                                  }
+                                  if (!currentApproved.includes(c.id)) {
+                                    currentApproved.push(c.id);
+                                  }
                                   try {
-                                    await fetch(`${API_BASE}/api/admin/comments`, {
+                                    await fetch(`${API_BASE}/api/admin/settings`, {
                                       method: 'POST',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ action: 'approve', id: c.id }),
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': 'Bearer d1-admin-session-token-2026',
+                                      },
+                                      body: JSON.stringify({
+                                        approved_comment_ids: JSON.stringify(currentApproved),
+                                      }),
                                     }).catch(() => {});
                                   } catch (_) {}
 
@@ -3188,11 +3240,26 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                               title="Delete Comment"
                               onClick={async () => {
                                 if (!confirm('Delete this comment?')) return;
+                                let currentDeleted: number[] = [];
+                                if (settingsMap && settingsMap.deleted_comment_ids) {
+                                  try {
+                                    const p = JSON.parse(settingsMap.deleted_comment_ids);
+                                    if (Array.isArray(p)) currentDeleted = p;
+                                  } catch (_) {}
+                                }
+                                if (!currentDeleted.includes(c.id)) {
+                                  currentDeleted.push(c.id);
+                                }
                                 try {
-                                  await fetch(`${API_BASE}/api/admin/comments`, {
+                                  await fetch(`${API_BASE}/api/admin/settings`, {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ action: 'delete', id: c.id }),
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      'Authorization': 'Bearer d1-admin-session-token-2026',
+                                    },
+                                    body: JSON.stringify({
+                                      deleted_comment_ids: JSON.stringify(currentDeleted),
+                                    }),
                                   }).catch(() => {});
                                 } catch (_) {}
 
