@@ -101,8 +101,6 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
   const [authorName, setAuthorName] = useState('Admin');
-  const [metaTitle, setMetaTitle] = useState('');
-  const [metaDesc, setMetaDesc] = useState('');
   const [isRawHtmlMode, setIsRawHtmlMode] = useState(false);
 
   // SEO-friendly and unique slug generator
@@ -345,8 +343,6 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             setContent(targetPost.content || '');
             setTags(targetPost.tags || '');
             setAuthorName(targetPost.author_name || 'Admin');
-            setMetaTitle(targetPost.title);
-            setMetaDesc(targetPost.excerpt || '');
             setActiveTab('edit');
           }
         }
@@ -390,8 +386,6 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           setContent(targetPost.content || '');
           setTags(targetPost.tags || '');
           setAuthorName(targetPost.author_name || 'Admin');
-          setMetaTitle(targetPost.title);
-          setMetaDesc(targetPost.excerpt || '');
           setActiveTab('edit');
         }
       }
@@ -412,8 +406,6 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setContent('');
     setTags('');
     setAuthorName('Admin');
-    setMetaTitle('');
-    setMetaDesc('');
     setIsRawHtmlMode(false);
     setActiveTab('add');
     setMobileMenuOpen(false);
@@ -436,8 +428,6 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setContent(p.content || '');
     setTags(p.tags || '');
     setAuthorName(p.author_name || 'Admin');
-    setMetaTitle(p.title);
-    setMetaDesc(p.excerpt || '');
     setIsRawHtmlMode(false);
     setActiveTab('edit');
     setMobileMenuOpen(false);
@@ -456,17 +446,58 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      showError('Image size exceeds 5MB limit. Please choose a smaller image.');
+    if (file.size > 10 * 1024 * 1024) {
+      showError('Image size exceeds 10MB limit. Please choose a smaller image.');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      if (event.target?.result) {
-        setCoverImage(event.target.result as string);
+      const rawDataUrl = event.target?.result as string;
+      if (!rawDataUrl) return;
+
+      // Auto-compress & convert to modern WebP format
+      const img = new Image();
+      img.onload = () => {
+        let width = img.naturalWidth || img.width;
+        let height = img.naturalHeight || img.height;
+        const maxWidth = 1200;
+        const maxHeight = 800;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, width, height);
+          try {
+            const compressedWebp = canvas.toDataURL('image/webp', 0.82);
+            setCoverImage(compressedWebp);
+            showSuccess('Image automatically compressed to WebP!');
+            return;
+          } catch (_) {
+            // fallback if canvas toDataURL fails
+          }
+        }
+        setCoverImage(rawDataUrl);
         showSuccess('Image selected & loaded for cover!');
-      }
+      };
+      img.onerror = () => {
+        setCoverImage(rawDataUrl);
+        showSuccess('Image selected & loaded for cover!');
+      };
+      img.src = rawDataUrl;
     };
     reader.readAsDataURL(file);
   };
@@ -492,9 +523,9 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       counter++;
     }
 
-    // 2. SEO Fallbacks: Excerpt falls back to Meta Description or first 160 clean chars of content
+    // 2. SEO Fallbacks: Excerpt falls back to first 160 clean chars of content if empty
     const cleanContentText = content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
-    const finalExcerpt = excerpt.trim() || metaDesc.trim() || cleanContentText.slice(0, 160);
+    const finalExcerpt = excerpt.trim() || cleanContentText.slice(0, 160);
 
     try {
       const res = await fetch(`${API_BASE}/api/admin/posts`, {
@@ -1583,9 +1614,6 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                         if (!isSlugManuallyEdited) {
                           setSlug(generateSeoSlug(newTitle, editId, posts));
                         }
-                        if (!metaTitle || metaTitle === title) {
-                          setMetaTitle(newTitle);
-                        }
                       }}
                     />
                   </div>
@@ -1644,20 +1672,20 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                     </div>
                   </div>
 
-                  {/* 3. Short Excerpt / Summary */}
+                  {/* 3. Short Excerpt & Meta Description */}
                   <div className="form-group editor-excerpt-group" style={{ marginBottom: 0 }}>
                     <div className="editor-field-header">
                       <label className="form-label editor-label">
-                        Short Excerpt / Post Summary
+                        Post Excerpt &amp; Meta Description
                       </label>
                       <span className="editor-char-counter">
-                        {excerpt.length} characters (Recommended: 120-160)
+                        {excerpt.length}/160 chars (Recommended: 120-160)
                       </span>
                     </div>
                     <textarea
                       rows={3}
                       className="form-control editor-excerpt-textarea"
-                      placeholder="Write a concise overview of the article to hook readers on cards and search result snippets..."
+                      placeholder="Write a concise overview of the article. This is used as the Google Search Meta Description and post card summary (defaults to first 160 chars of content if empty)..."
                       value={excerpt}
                       onChange={(e) => setExcerpt(e.target.value)}
                     />
@@ -1933,56 +1961,43 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   </div>
                 </div>
 
-                {/* 4. Google Search SEO Meta Card & Live Preview */}
+                {/* 4. Google Search SEO Live Preview */}
                 <div className="editor-sidebar-card">
                   <div className="sidebar-card-header">
                     <Globe style={{ width: '16px', height: '16px', color: '#38bdf8' }} />
-                    <h4>Search Engine Optimization (SEO)</h4>
+                    <h4>Google Search (SERP) Live Preview</h4>
                   </div>
 
-                  <div className="form-group">
-                    <div className="editor-field-header">
-                      <label className="form-label editor-label">Meta Title</label>
-                      <span className="editor-char-counter">
-                        {metaTitle.length}/60
-                      </span>
-                    </div>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Custom SEO Title (defaults to article title)..."
-                      value={metaTitle}
-                      onChange={(e) => setMetaTitle(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <div className="editor-field-header">
-                      <label className="form-label editor-label">Meta Description</label>
-                      <span className="editor-char-counter">
-                        {metaDesc.length}/160
-                      </span>
-                    </div>
-                    <textarea
-                      rows={3}
-                      className="form-control"
-                      placeholder="Custom SEO Description (defaults to excerpt)..."
-                      value={metaDesc}
-                      onChange={(e) => setMetaDesc(e.target.value)}
-                    />
-                  </div>
+                  <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+                    Live simulation of how this article will appear on Google search results based on your Title, Permalink, and Excerpt.
+                  </p>
 
                   {/* Google Search Result SERP Simulator */}
                   <div className="google-serp-preview-box">
                     <div className="serp-top-row">
-                      <span className="serp-domain">https://rrbgroupdanswerkey.pages.dev &rsaquo; {slug || 'article-slug'}</span>
+                      <span className="serp-domain">https://rrbgroupdanswerkey.com &rsaquo; {slug || 'article-slug'}</span>
                     </div>
                     <h5 className="serp-title">
-                      {metaTitle || title || 'Your Article Title Goes Here'}
+                      {title || 'Your Article Title Goes Here'}
                     </h5>
                     <p className="serp-desc">
-                      {metaDesc || excerpt || 'Your article summary or meta description will appear here on Google search results...'}
+                      {excerpt || (content ? content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim().slice(0, 160) : '') || 'Your article summary or meta description will appear here on Google search results...'}
                     </p>
+                  </div>
+
+                  <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#94a3b8' }}>Title Length:</span>
+                      <span style={{ fontWeight: 600, color: title.length > 60 ? '#f43f5e' : (title.length >= 40 ? '#10b981' : '#38bdf8') }}>
+                        {title.length}/60 chars
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#94a3b8' }}>Snippet Length:</span>
+                      <span style={{ fontWeight: 600, color: excerpt.length > 160 ? '#f43f5e' : (excerpt.length >= 100 ? '#10b981' : '#38bdf8') }}>
+                        {excerpt.length}/160 chars
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
