@@ -43,6 +43,8 @@ import {
   ArrowLeft,
   FolderOpen,
   Navigation,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 const TinyEditor = dynamic(
@@ -83,6 +85,15 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'publish' | 'draft'>('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+
+  // Pagination states for Articles List
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Auto-reset page to 1 when search query, filter, or itemsPerPage changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, categoryFilter, itemsPerPage]);
 
   // Image Preview Lightbox state
   const [previewImage, setPreviewImage] = useState<{ url: string; title: string; slug?: string; category?: string } | null>(null);
@@ -758,6 +769,26 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       })
     : [];
 
+  // Pagination calculations for Articles Manager
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / itemsPerPage));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safeCurrentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredPosts.length);
+  const paginatedPosts = filteredPosts.slice(startIndex, endIndex);
+
+  const getPaginationRange = (current: number, total: number): (number | string)[] => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 3) {
+      return [1, 2, 3, 4, '...', total];
+    }
+    if (current >= total - 2) {
+      return [1, '...', total - 3, total - 2, total - 1, total];
+    }
+    return [1, '...', current - 1, current, current + 1, '...', total];
+  };
+
   return (
     <div className="admin-container">
       {/* SIDEBAR NAVIGATION */}
@@ -1238,7 +1269,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                         </td>
                       </tr>
                     ) : (
-                      filteredPosts.map((p) => (
+                      paginatedPosts.map((p) => (
                         <tr key={p.id} className="article-row">
                           {/* 1. Cover Image Thumbnail */}
                           <td className="article-thumb-cell">
@@ -1410,7 +1441,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                     )}
                   </div>
                 ) : (
-                  filteredPosts.map((p) => (
+                  paginatedPosts.map((p) => (
                     <div key={p.id} className="article-mobile-item-card">
                       {/* Top Row: Thumbnail + Info */}
                       <div className="article-mobile-item-top">
@@ -1519,6 +1550,103 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   ))
                 )}
               </div>
+
+              {/* BEAUTIFUL PREMIUM ARTICLES PAGINATION TOOLBAR */}
+              {filteredPosts.length > 0 && (
+                <div className="articles-pagination-toolbar">
+                  {/* Left: Summary & Per-Page Selector */}
+                  <div className="pagination-summary-wrap">
+                    <span className="pagination-info-text">
+                      Showing <strong className="pagination-highlight">{startIndex + 1}–{endIndex}</strong> of{' '}
+                      <strong className="pagination-highlight">{filteredPosts.length}</strong> articles
+                    </span>
+
+                    <div className="pagination-per-page-wrap">
+                      <label htmlFor="articles-per-page-select" className="pagination-per-page-label">
+                        Per page:
+                      </label>
+                      <select
+                        id="articles-per-page-select"
+                        className="pagination-per-page-select"
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                          setItemsPerPage(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                      >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Right: Modern Page Navigation Buttons */}
+                  {totalPages > 1 && (
+                    <div className="pagination-nav-wrap">
+                      {/* Prev Button */}
+                      <button
+                        type="button"
+                        className="pagination-arrow-btn"
+                        disabled={safeCurrentPage <= 1}
+                        onClick={() => {
+                          if (safeCurrentPage > 1) {
+                            setCurrentPage(safeCurrentPage - 1);
+                          }
+                        }}
+                        aria-label="Previous Page"
+                      >
+                        <ChevronLeft style={{ width: '15px', height: '15px' }} />
+                        <span>Prev</span>
+                      </button>
+
+                      {/* Numbered Page Buttons */}
+                      <div className="pagination-numbers-list">
+                        {getPaginationRange(safeCurrentPage, totalPages).map((item, idx) => {
+                          if (item === '...') {
+                            return (
+                              <span key={`dots-${idx}`} className="pagination-dots">
+                                &hellip;
+                              </span>
+                            );
+                          }
+
+                          const pageNum = item as number;
+                          const isActive = pageNum === safeCurrentPage;
+
+                          return (
+                            <button
+                              key={`page-${pageNum}`}
+                              type="button"
+                              className={`pagination-page-btn ${isActive ? 'active' : ''}`}
+                              onClick={() => setCurrentPage(pageNum)}
+                              aria-current={isActive ? 'page' : undefined}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Next Button */}
+                      <button
+                        type="button"
+                        className="pagination-arrow-btn"
+                        disabled={safeCurrentPage >= totalPages}
+                        onClick={() => {
+                          if (safeCurrentPage < totalPages) {
+                            setCurrentPage(safeCurrentPage + 1);
+                          }
+                        }}
+                        aria-label="Next Page"
+                      >
+                        <span>Next</span>
+                        <ChevronRight style={{ width: '15px', height: '15px' }} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
