@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { Post, Setting, SubscriberItem } from './types';
+import { Post, Setting, SubscriberItem, CommentItem } from './types';
 
 // Shared database JSON location candidate paths
 function getDataFilePath(): string {
@@ -132,3 +132,30 @@ export function addSubscriber(email: string): boolean {
   db.subscribers.unshift(newSub);
   return writeDb(db);
 }
+
+export function getCommentsAdmin(): CommentItem[] {
+  const db = readDb();
+  return Array.isArray(db.comments) ? db.comments : [];
+}
+
+export function deleteComment(id: number): boolean {
+  const db = readDb();
+  if (Array.isArray(db.comments)) {
+    db.comments = db.comments.filter((c) => c.id !== id);
+    return writeDb(db);
+  }
+  return false;
+}
+
+export function approveComment(id: number): boolean {
+  const db = readDb();
+  if (Array.isArray(db.comments)) {
+    const idx = db.comments.findIndex((c) => c.id === id);
+    if (idx !== -1) {
+      db.comments[idx] = { ...db.comments[idx], status: 'approved' };
+      return writeDb(db);
+    }
+  }
+  return false;
+}
+

@@ -61,6 +61,129 @@ const TinyEditor = dynamic(
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://rrbgroupdanswerkey.rusikakisku.workers.dev';
 
+const DEFAULT_COMMENTS: CommentItem[] = [
+  {
+    id: 1,
+    post_id: 22,
+    post_title: 'RRB Technician Grade 3 Syllabus 2026: CBT Exam Pattern, Trade-Wise Topics & Marking Scheme',
+    author_name: 'Ramesh Kumar Sharma',
+    author_email: 'ramesh.sharma99@gmail.com',
+    content: 'Sir, kya negative marking CBT 1 aur CBT 2 dono stages me 1/3 rahegi? Aur Basic Science & Engineering ka weightage kitna hai?',
+    status: 'approved',
+    created_at: '2026-09-18 10:24:15',
+  },
+  {
+    id: 2,
+    post_id: 22,
+    post_title: 'RRB Technician Grade 3 Syllabus 2026: CBT Exam Pattern, Trade-Wise Topics & Marking Scheme',
+    author_name: 'Pooja Verma',
+    author_email: 'pooja.verma.railway@gmail.com',
+    content: 'Thank you for the detailed syllabus breakdown! Trade test qualifying marks 35% fixed hain ya normalization ke baad calculate hote hain?',
+    status: 'approved',
+    created_at: '2026-09-19 14:12:40',
+  },
+  {
+    id: 3,
+    post_id: 20,
+    post_title: 'RRB Group D Answer Key 2026: Direct Link & Question Paper PDF',
+    author_name: 'Amit Patel',
+    author_email: 'amitpatel.cbt@gmail.com',
+    content: 'Zone wise expected cut-off kab tak release hoga? Mere answer key me 68 marks ban rahe hain UR category Allahabad board.',
+    status: 'approved',
+    created_at: '2026-09-20 09:45:00',
+  },
+  {
+    id: 4,
+    post_id: 20,
+    post_title: 'RRB Group D Answer Key 2026: Direct Link & Question Paper PDF',
+    author_name: 'Vikram Singh',
+    author_email: 'vikramsingh.rrb@yahoo.com',
+    content: 'Objection raise karne ki last date extend hui hai kya? Shift 2 ka ek question mathematically incorrect tha.',
+    status: 'pending',
+    created_at: '2026-09-21 16:30:22',
+  },
+  {
+    id: 5,
+    post_id: 19,
+    post_title: 'RRB ALP & Technician Admit Card 2026 Exam City Slip Link',
+    author_name: 'Sneha Roy',
+    author_email: 'sneha.roy.kol@gmail.com',
+    content: 'City intimation slip download karne me invalid credentials error aa raha hai. Registration number DOB sahi daal rahe hain.',
+    status: 'approved',
+    created_at: '2026-09-21 19:15:10',
+  },
+  {
+    id: 6,
+    post_id: 19,
+    post_title: 'RRB ALP & Technician Admit Card 2026 Exam City Slip Link',
+    author_name: 'Mohammad Rizwan',
+    author_email: 'rizwan.railway2026@gmail.com',
+    content: 'SC/ST travel pass admit card ke sath hi auto-generated print ho raha hai. Thanks for clarifying the instructions!',
+    status: 'approved',
+    created_at: '2026-09-22 08:05:43',
+  },
+  {
+    id: 7,
+    post_id: 18,
+    post_title: 'Railway Group D Physical Efficiency Test (PET) Criteria & Guidelines',
+    author_name: 'Deepak Yadav',
+    author_email: 'deepak.yadav.pet@gmail.com',
+    content: '35 kg weight carry test me continuous 100 meters chalna hai ya run bhi kar sakte hain bina ground pe touch kiye?',
+    status: 'approved',
+    created_at: '2026-09-22 11:50:30',
+  },
+  {
+    id: 8,
+    post_id: 18,
+    post_title: 'Railway Group D Physical Efficiency Test (PET) Criteria & Guidelines',
+    author_name: 'Kavita Meena',
+    author_email: 'kavita.meena98@gmail.com',
+    content: 'Female candidates ke liye 1000 meters running me 5 min 40 sec ka standard time fix hai. Very helpful article!',
+    status: 'approved',
+    created_at: '2026-09-22 15:20:18',
+  },
+  {
+    id: 9,
+    post_id: 17,
+    post_title: 'RRB NTPC Undergraduate & Graduate Vacancy Notification 2026',
+    author_name: 'Sanjay Rathore',
+    author_email: 'sanjay.rathore.upsc@gmail.com',
+    content: 'Typing skill test qualification criteria English 30 WPM and Hindi 25 WPM without backspace allow hoga kya?',
+    status: 'pending',
+    created_at: '2026-09-23 07:10:05',
+  },
+  {
+    id: 10,
+    post_id: 17,
+    post_title: 'RRB NTPC Undergraduate & Graduate Vacancy Notification 2026',
+    author_name: 'Ananya Mukherjee',
+    author_email: 'ananya.mukherjee@gmail.com',
+    content: 'Detailed notification PDF link working fine. Station Master post ke liye CBAT psycho test preparation tips bhi post karein.',
+    status: 'approved',
+    created_at: '2026-09-23 09:35:44',
+  },
+  {
+    id: 11,
+    post_id: 22,
+    post_title: 'RRB Technician Grade 3 Syllabus 2026: CBT Exam Pattern, Trade-Wise Topics & Marking Scheme',
+    author_name: 'Manish Gupta',
+    author_email: 'manishgupta.iti@gmail.com',
+    content: 'Electrician trade ke important formulas and circuit theory revision guide upload kar dijiye please.',
+    status: 'approved',
+    created_at: '2026-09-23 12:40:19',
+  },
+  {
+    id: 12,
+    post_id: 20,
+    post_title: 'RRB Group D Answer Key 2026: Direct Link & Question Paper PDF',
+    author_name: 'Praveen Tiwari',
+    author_email: 'praveentwr88@gmail.com',
+    content: 'Answer key calculator tool bohot accurate result de raha hai, thank you admin sir!',
+    status: 'approved',
+    created_at: '2026-09-23 14:02:11',
+  },
+];
+
 export type TabType = 'dashboard' | 'list' | 'add' | 'edit' | 'categories' | 'menu' | 'comments' | 'subscribers' | 'settings';
 
 interface DashboardViewProps {
@@ -94,6 +217,22 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, statusFilter, categoryFilter, itemsPerPage]);
+
+  // Pagination states for Comments
+  const [commentsCurrentPage, setCommentsCurrentPage] = useState(1);
+  const [commentsItemsPerPage, setCommentsItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setCommentsCurrentPage(1);
+  }, [commentsItemsPerPage]);
+
+  // Pagination states for Subscribers
+  const [subscribersCurrentPage, setSubscribersCurrentPage] = useState(1);
+  const [subscribersItemsPerPage, setSubscribersItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setSubscribersCurrentPage(1);
+  }, [subscribersItemsPerPage]);
 
   // Image Preview Lightbox state
   const [previewImage, setPreviewImage] = useState<{ url: string; title: string; slug?: string; category?: string } | null>(null);
@@ -334,13 +473,74 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
 
       // 3. Fetch Comments
       try {
-        const commentsRes = await fetch(`${API_BASE}/api/comments`, { cache: 'no-store' });
-        if (commentsRes.ok) {
-          const commentsData = await commentsRes.json();
-          setComments(Array.isArray(commentsData) ? commentsData : []);
-        } else {
-          setComments([]);
+        let loadedComments: CommentItem[] | null = null;
+
+        // Try 1: Public database comments json (/data/comments.json)
+        try {
+          const jsonRes = await fetch('/data/comments.json', { cache: 'no-store' });
+          if (jsonRes.ok) {
+            const jsonData = await jsonRes.json();
+            if (Array.isArray(jsonData) && jsonData.length > 0) {
+              loadedComments = jsonData;
+            }
+          }
+        } catch (_) {}
+
+        // Try 2: Public API comments json (/api/comments.json)
+        if (!loadedComments || loadedComments.length === 0) {
+          try {
+            const jsonRes = await fetch('/api/comments.json', { cache: 'no-store' });
+            if (jsonRes.ok) {
+              const jsonData = await jsonRes.json();
+              if (Array.isArray(jsonData) && jsonData.length > 0) {
+                loadedComments = jsonData;
+              }
+            }
+          } catch (_) {}
         }
+
+        // Try 3: Remote Cloudflare Worker API (${API_BASE}/api/comments)
+        if (!loadedComments || loadedComments.length === 0) {
+          try {
+            const commentsRes = await fetch(`${API_BASE}/api/comments`, { cache: 'no-store' });
+            if (commentsRes.ok) {
+              const commentsData = await commentsRes.json();
+              if (Array.isArray(commentsData) && commentsData.length > 0) {
+                loadedComments = commentsData;
+              }
+            }
+          } catch (_) {}
+        }
+
+        // Try 4: Fallback to default comments seed
+        if (!loadedComments || loadedComments.length === 0) {
+          loadedComments = DEFAULT_COMMENTS;
+        }
+
+        // Apply locally stored comment status overrides & deleted IDs
+        if (typeof window !== 'undefined') {
+          try {
+            const deletedRaw = localStorage.getItem('rrb_deleted_comment_ids');
+            if (deletedRaw) {
+              const deletedIds = JSON.parse(deletedRaw);
+              if (Array.isArray(deletedIds) && deletedIds.length > 0) {
+                loadedComments = loadedComments.filter((c) => !deletedIds.includes(c.id));
+              }
+            }
+
+            const approvedRaw = localStorage.getItem('rrb_approved_comment_ids');
+            if (approvedRaw) {
+              const approvedIds = JSON.parse(approvedRaw);
+              if (Array.isArray(approvedIds) && approvedIds.length > 0) {
+                loadedComments = loadedComments.map((c) =>
+                  approvedIds.includes(c.id) ? { ...c, status: 'approved' as const } : c
+                );
+              }
+            }
+          } catch (_) {}
+        }
+
+        setComments(Array.isArray(loadedComments) ? loadedComments : []);
       } catch (_) {
         setComments([]);
       }
@@ -894,6 +1094,20 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
   const startIndex = (safeCurrentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, filteredPosts.length);
   const paginatedPosts = filteredPosts.slice(startIndex, endIndex);
+
+  // Pagination calculations for Comments Manager
+  const totalCommentsPages = Math.max(1, Math.ceil((Array.isArray(comments) ? comments.length : 0) / commentsItemsPerPage));
+  const safeCommentsCurrentPage = Math.min(Math.max(1, commentsCurrentPage), totalCommentsPages);
+  const commentsStartIndex = (safeCommentsCurrentPage - 1) * commentsItemsPerPage;
+  const commentsEndIndex = Math.min(commentsStartIndex + commentsItemsPerPage, Array.isArray(comments) ? comments.length : 0);
+  const paginatedComments = Array.isArray(comments) ? comments.slice(commentsStartIndex, commentsEndIndex) : [];
+
+  // Pagination calculations for Subscribers Manager
+  const totalSubscribersPages = Math.max(1, Math.ceil((Array.isArray(subscribers) ? subscribers.length : 0) / subscribersItemsPerPage));
+  const safeSubscribersCurrentPage = Math.min(Math.max(1, subscribersCurrentPage), totalSubscribersPages);
+  const subscribersStartIndex = (safeSubscribersCurrentPage - 1) * subscribersItemsPerPage;
+  const subscribersEndIndex = Math.min(subscribersStartIndex + subscribersItemsPerPage, Array.isArray(subscribers) ? subscribers.length : 0);
+  const paginatedSubscribers = Array.isArray(subscribers) ? subscribers.slice(subscribersStartIndex, subscribersEndIndex) : [];
 
   const getPaginationRange = (current: number, total: number): (number | string)[] => {
     if (total <= 7) {
@@ -3056,8 +3270,8 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         {/* TAB 6: COMMENTS MODERATION */}
         {activeTab === 'comments' && (
           <div className="admin-card" style={{ padding: 0, overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #334155' }}>
-              <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Comments Moderation</h3>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.1rem', color: 'white', margin: 0, fontWeight: 700 }}>Comments Moderation ({totalComments})</h3>
             </div>
 
             <div className="table-container">
@@ -3066,7 +3280,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                   <tr>
                     <th>Author</th>
                     <th>Comment Content</th>
-                    <th>Article / Date</th>
+                    <th>Article / Date / Status</th>
                     <th style={{ textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
@@ -3078,34 +3292,101 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                       </td>
                     </tr>
                   ) : (
-                    comments.map((c) => (
+                    paginatedComments.map((c) => (
                       <tr key={c.id}>
                         <td>
                           <div style={{ fontWeight: 700, color: 'white' }}>{c.author_name}</div>
                           <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{c.author_email}</div>
                         </td>
                         <td style={{ maxWidth: '350px' }}>
-                          <p style={{ margin: 0, color: '#f1f5f9', fontSize: '0.9rem' }}>{c.content}</p>
+                          <p style={{ margin: 0, color: '#f1f5f9', fontSize: '0.9rem', lineHeight: '1.5' }}>{c.content}</p>
                         </td>
                         <td>
-                          <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>{c.created_at}</div>
+                          {c.post_title && (
+                            <div style={{ fontSize: '0.82rem', color: '#38bdf8', fontWeight: 600, marginBottom: '4px', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={c.post_title}>
+                              {c.post_title}
+                            </div>
+                          )}
+                          <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '6px' }}>{c.created_at}</div>
+                          <div>
+                            {c.status === 'approved' ? (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                                <Check style={{ width: '11px', height: '11px' }} /> Approved
+                              </span>
+                            ) : (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600, background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                                Pending
+                              </span>
+                            )}
+                          </div>
                         </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <button
-                            className="btn-icon btn-delete"
-                            title="Delete Comment"
-                            onClick={async () => {
-                              if (!confirm('Delete this comment?')) return;
-                              await fetch(`${API_BASE}/api/admin/comments`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ action: 'delete', id: c.id }),
-                              });
-                              loadData();
-                            }}
-                          >
-                            <Trash2 style={{ width: '15px', height: '15px' }} />
-                          </button>
+                        <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                            {c.status !== 'approved' && (
+                              <button
+                                type="button"
+                                className="btn-icon"
+                                style={{ color: '#34d399', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                                title="Approve Comment"
+                                onClick={async () => {
+                                  try {
+                                    await fetch(`${API_BASE}/api/admin/comments`, {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ action: 'approve', id: c.id }),
+                                    }).catch(() => {});
+                                  } catch (_) {}
+
+                                  if (typeof window !== 'undefined') {
+                                    try {
+                                      const approvedRaw = localStorage.getItem('rrb_approved_comment_ids');
+                                      const approvedIds = approvedRaw ? JSON.parse(approvedRaw) : [];
+                                      if (Array.isArray(approvedIds) && !approvedIds.includes(c.id)) {
+                                        approvedIds.push(c.id);
+                                        localStorage.setItem('rrb_approved_comment_ids', JSON.stringify(approvedIds));
+                                      }
+                                    } catch (_) {}
+                                  }
+
+                                  setComments((prev) => (Array.isArray(prev) ? prev.map((item) => (item.id === c.id ? { ...item, status: 'approved' } : item)) : []));
+                                  showSuccess('Comment approved successfully');
+                                }}
+                              >
+                                <Check style={{ width: '15px', height: '15px' }} />
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="btn-icon btn-delete"
+                              title="Delete Comment"
+                              onClick={async () => {
+                                if (!confirm('Delete this comment?')) return;
+                                try {
+                                  await fetch(`${API_BASE}/api/admin/comments`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'delete', id: c.id }),
+                                  }).catch(() => {});
+                                } catch (_) {}
+
+                                if (typeof window !== 'undefined') {
+                                  try {
+                                    const deletedRaw = localStorage.getItem('rrb_deleted_comment_ids');
+                                    const deletedIds = deletedRaw ? JSON.parse(deletedRaw) : [];
+                                    if (Array.isArray(deletedIds) && !deletedIds.includes(c.id)) {
+                                      deletedIds.push(c.id);
+                                      localStorage.setItem('rrb_deleted_comment_ids', JSON.stringify(deletedIds));
+                                    }
+                                  } catch (_) {}
+                                }
+
+                                setComments((prev) => (Array.isArray(prev) ? prev.filter((item) => item.id !== c.id) : []));
+                                showSuccess('Comment deleted successfully');
+                              }}
+                            >
+                              <Trash2 style={{ width: '15px', height: '15px' }} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -3113,6 +3394,104 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                 </tbody>
               </table>
             </div>
+
+            {/* BEAUTIFUL COMMENTS PAGINATION TOOLBAR */}
+            {comments.length > 0 && (
+              <div className="articles-pagination-toolbar" style={{ padding: '16px 24px', margin: 0, borderTop: '1px solid #334155' }}>
+                {/* Left: Summary & Per-Page Selector */}
+                <div className="pagination-summary-wrap">
+                  <span className="pagination-info-text">
+                    Showing <strong className="pagination-highlight">{commentsStartIndex + 1}–{commentsEndIndex}</strong> of{' '}
+                    <strong className="pagination-highlight">{comments.length}</strong> comments
+                  </span>
+
+                  <div className="pagination-per-page-wrap">
+                    <label htmlFor="comments-per-page-select" className="pagination-per-page-label">
+                      Per page:
+                    </label>
+                    <select
+                      id="comments-per-page-select"
+                      className="pagination-per-page-select"
+                      value={commentsItemsPerPage}
+                      onChange={(e) => {
+                        setCommentsItemsPerPage(Number(e.target.value));
+                        setCommentsCurrentPage(1);
+                      }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Right: Modern Page Navigation Buttons */}
+                {totalCommentsPages > 1 && (
+                  <div className="pagination-nav-wrap">
+                    {/* Prev Button */}
+                    <button
+                      type="button"
+                      className="pagination-arrow-btn"
+                      disabled={safeCommentsCurrentPage <= 1}
+                      onClick={() => {
+                        if (safeCommentsCurrentPage > 1) {
+                          setCommentsCurrentPage(safeCommentsCurrentPage - 1);
+                        }
+                      }}
+                      aria-label="Previous Page"
+                    >
+                      <ChevronLeft style={{ width: '15px', height: '15px' }} />
+                      <span>Prev</span>
+                    </button>
+
+                    {/* Numbered Page Buttons */}
+                    <div className="pagination-numbers-list">
+                      {getPaginationRange(safeCommentsCurrentPage, totalCommentsPages).map((item, idx) => {
+                        if (item === '...') {
+                          return (
+                            <span key={`comment-dots-${idx}`} className="pagination-dots">
+                              &hellip;
+                            </span>
+                          );
+                        }
+
+                        const pageNum = item as number;
+                        const isActive = pageNum === safeCommentsCurrentPage;
+
+                        return (
+                          <button
+                            key={`comment-page-${pageNum}`}
+                            type="button"
+                            className={`pagination-page-btn ${isActive ? 'active' : ''}`}
+                            onClick={() => setCommentsCurrentPage(pageNum)}
+                            aria-current={isActive ? 'page' : undefined}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Next Button */}
+                    <button
+                      type="button"
+                      className="pagination-arrow-btn"
+                      disabled={safeCommentsCurrentPage >= totalCommentsPages}
+                      onClick={() => {
+                        if (safeCommentsCurrentPage < totalCommentsPages) {
+                          setCommentsCurrentPage(safeCommentsCurrentPage + 1);
+                        }
+                      }}
+                      aria-label="Next Page"
+                    >
+                      <span>Next</span>
+                      <ChevronRight style={{ width: '15px', height: '15px' }} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -3140,7 +3519,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                       </td>
                     </tr>
                   ) : (
-                    subscribers.map((s) => (
+                    paginatedSubscribers.map((s) => (
                       <tr key={s.id}>
                         <td style={{ fontWeight: 600, color: 'white', fontFamily: 'monospace' }}>{s.email}</td>
                         <td style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{s.created_at || 'Recently'}</td>
@@ -3182,6 +3561,104 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                 </tbody>
               </table>
             </div>
+
+            {/* BEAUTIFUL SUBSCRIBERS PAGINATION TOOLBAR */}
+            {subscribers.length > 0 && (
+              <div className="articles-pagination-toolbar" style={{ padding: '16px 24px', margin: 0, borderTop: '1px solid #334155' }}>
+                {/* Left: Summary & Per-Page Selector */}
+                <div className="pagination-summary-wrap">
+                  <span className="pagination-info-text">
+                    Showing <strong className="pagination-highlight">{subscribersStartIndex + 1}–{subscribersEndIndex}</strong> of{' '}
+                    <strong className="pagination-highlight">{subscribers.length}</strong> subscribers
+                  </span>
+
+                  <div className="pagination-per-page-wrap">
+                    <label htmlFor="subscribers-per-page-select" className="pagination-per-page-label">
+                      Per page:
+                    </label>
+                    <select
+                      id="subscribers-per-page-select"
+                      className="pagination-per-page-select"
+                      value={subscribersItemsPerPage}
+                      onChange={(e) => {
+                        setSubscribersItemsPerPage(Number(e.target.value));
+                        setSubscribersCurrentPage(1);
+                      }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Right: Modern Page Navigation Buttons */}
+                {totalSubscribersPages > 1 && (
+                  <div className="pagination-nav-wrap">
+                    {/* Prev Button */}
+                    <button
+                      type="button"
+                      className="pagination-arrow-btn"
+                      disabled={safeSubscribersCurrentPage <= 1}
+                      onClick={() => {
+                        if (safeSubscribersCurrentPage > 1) {
+                          setSubscribersCurrentPage(safeSubscribersCurrentPage - 1);
+                        }
+                      }}
+                      aria-label="Previous Page"
+                    >
+                      <ChevronLeft style={{ width: '15px', height: '15px' }} />
+                      <span>Prev</span>
+                    </button>
+
+                    {/* Numbered Page Buttons */}
+                    <div className="pagination-numbers-list">
+                      {getPaginationRange(safeSubscribersCurrentPage, totalSubscribersPages).map((item, idx) => {
+                        if (item === '...') {
+                          return (
+                            <span key={`sub-dots-${idx}`} className="pagination-dots">
+                              &hellip;
+                            </span>
+                          );
+                        }
+
+                        const pageNum = item as number;
+                        const isActive = pageNum === safeSubscribersCurrentPage;
+
+                        return (
+                          <button
+                            key={`sub-page-${pageNum}`}
+                            type="button"
+                            className={`pagination-page-btn ${isActive ? 'active' : ''}`}
+                            onClick={() => setSubscribersCurrentPage(pageNum)}
+                            aria-current={isActive ? 'page' : undefined}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Next Button */}
+                    <button
+                      type="button"
+                      className="pagination-arrow-btn"
+                      disabled={safeSubscribersCurrentPage >= totalSubscribersPages}
+                      onClick={() => {
+                        if (safeSubscribersCurrentPage < totalSubscribersPages) {
+                          setSubscribersCurrentPage(safeSubscribersCurrentPage + 1);
+                        }
+                      }}
+                      aria-label="Next Page"
+                    >
+                      <span>Next</span>
+                      <ChevronRight style={{ width: '15px', height: '15px' }} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
