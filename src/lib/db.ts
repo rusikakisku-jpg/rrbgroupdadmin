@@ -1,16 +1,21 @@
 import fs from 'fs';
 import path from 'path';
-import { Post, Setting } from './types';
+import { Post, Setting, SubscriberItem } from './types';
 
-// Shared database JSON location in rrb-nextjs
-const mainDbPath = path.join(process.cwd(), '..', 'rrb-nextjs', 'src', 'data', 'db.json');
-const fallbackDbPath = path.join(process.cwd(), 'src', 'data', 'db.json');
-
+// Shared database JSON location candidate paths
 function getDataFilePath(): string {
-  if (fs.existsSync(mainDbPath)) {
-    return mainDbPath;
+  const candidatePaths = [
+    path.join(process.cwd(), 'src', 'data', 'db.json'),
+    path.join(process.cwd(), '..', 'rrbgroupdanswerkey', 'src', 'data', 'db.json'),
+    path.join(process.cwd(), '..', 'testrrbgroupdanswerkey', 'src', 'data', 'db.json'),
+    path.join(process.cwd(), '..', 'rrb-nextjs', 'src', 'data', 'db.json'),
+  ];
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      return p;
+    }
   }
-  return fallbackDbPath;
+  return path.join(process.cwd(), 'src', 'data', 'db.json');
 }
 
 interface DbSchema {
@@ -95,4 +100,35 @@ export function getSettings(): Record<string, string> {
     settings[r.setting_key] = r.setting_value;
   });
   return settings;
+}
+
+export function getSubscribers(): SubscriberItem[] {
+  const db = readDb();
+  return Array.isArray(db.subscribers) ? db.subscribers : [];
+}
+
+export function deleteSubscriber(id: number): boolean {
+  const db = readDb();
+  if (Array.isArray(db.subscribers)) {
+    db.subscribers = db.subscribers.filter((s) => s.id !== id);
+    return writeDb(db);
+  }
+  return false;
+}
+
+export function addSubscriber(email: string): boolean {
+  const db = readDb();
+  if (!Array.isArray(db.subscribers)) {
+    db.subscribers = [];
+  }
+  const cleanEmail = email.trim().toLowerCase();
+  const exists = db.subscribers.some((s) => s.email?.toLowerCase() === cleanEmail);
+  if (exists) return true;
+  const newSub: SubscriberItem = {
+    id: Date.now(),
+    email: cleanEmail,
+    created_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
+  };
+  db.subscribers.unshift(newSub);
+  return writeDb(db);
 }
