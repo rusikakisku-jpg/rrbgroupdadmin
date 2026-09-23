@@ -61,128 +61,6 @@ const TinyEditor = dynamic(
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://rrbgroupdanswerkey.rusikakisku.workers.dev';
 
-const DEFAULT_COMMENTS: CommentItem[] = [
-  {
-    id: 1,
-    post_id: 22,
-    post_title: 'RRB Technician Grade 3 Syllabus 2026: CBT Exam Pattern, Trade-Wise Topics & Marking Scheme',
-    author_name: 'Ramesh Kumar Sharma',
-    author_email: 'ramesh.sharma99@gmail.com',
-    content: 'Sir, kya negative marking CBT 1 aur CBT 2 dono stages me 1/3 rahegi? Aur Basic Science & Engineering ka weightage kitna hai?',
-    status: 'approved',
-    created_at: '2026-09-18 10:24:15',
-  },
-  {
-    id: 2,
-    post_id: 22,
-    post_title: 'RRB Technician Grade 3 Syllabus 2026: CBT Exam Pattern, Trade-Wise Topics & Marking Scheme',
-    author_name: 'Pooja Verma',
-    author_email: 'pooja.verma.railway@gmail.com',
-    content: 'Thank you for the detailed syllabus breakdown! Trade test qualifying marks 35% fixed hain ya normalization ke baad calculate hote hain?',
-    status: 'approved',
-    created_at: '2026-09-19 14:12:40',
-  },
-  {
-    id: 3,
-    post_id: 20,
-    post_title: 'RRB Group D Answer Key 2026: Direct Link & Question Paper PDF',
-    author_name: 'Amit Patel',
-    author_email: 'amitpatel.cbt@gmail.com',
-    content: 'Zone wise expected cut-off kab tak release hoga? Mere answer key me 68 marks ban rahe hain UR category Allahabad board.',
-    status: 'approved',
-    created_at: '2026-09-20 09:45:00',
-  },
-  {
-    id: 4,
-    post_id: 20,
-    post_title: 'RRB Group D Answer Key 2026: Direct Link & Question Paper PDF',
-    author_name: 'Vikram Singh',
-    author_email: 'vikramsingh.rrb@yahoo.com',
-    content: 'Objection raise karne ki last date extend hui hai kya? Shift 2 ka ek question mathematically incorrect tha.',
-    status: 'pending',
-    created_at: '2026-09-21 16:30:22',
-  },
-  {
-    id: 5,
-    post_id: 19,
-    post_title: 'RRB ALP & Technician Admit Card 2026 Exam City Slip Link',
-    author_name: 'Sneha Roy',
-    author_email: 'sneha.roy.kol@gmail.com',
-    content: 'City intimation slip download karne me invalid credentials error aa raha hai. Registration number DOB sahi daal rahe hain.',
-    status: 'approved',
-    created_at: '2026-09-21 19:15:10',
-  },
-  {
-    id: 6,
-    post_id: 19,
-    post_title: 'RRB ALP & Technician Admit Card 2026 Exam City Slip Link',
-    author_name: 'Mohammad Rizwan',
-    author_email: 'rizwan.railway2026@gmail.com',
-    content: 'SC/ST travel pass admit card ke sath hi auto-generated print ho raha hai. Thanks for clarifying the instructions!',
-    status: 'approved',
-    created_at: '2026-09-22 08:05:43',
-  },
-  {
-    id: 7,
-    post_id: 18,
-    post_title: 'Railway Group D Physical Efficiency Test (PET) Criteria & Guidelines',
-    author_name: 'Deepak Yadav',
-    author_email: 'deepak.yadav.pet@gmail.com',
-    content: '35 kg weight carry test me continuous 100 meters chalna hai ya run bhi kar sakte hain bina ground pe touch kiye?',
-    status: 'approved',
-    created_at: '2026-09-22 11:50:30',
-  },
-  {
-    id: 8,
-    post_id: 18,
-    post_title: 'Railway Group D Physical Efficiency Test (PET) Criteria & Guidelines',
-    author_name: 'Kavita Meena',
-    author_email: 'kavita.meena98@gmail.com',
-    content: 'Female candidates ke liye 1000 meters running me 5 min 40 sec ka standard time fix hai. Very helpful article!',
-    status: 'approved',
-    created_at: '2026-09-22 15:20:18',
-  },
-  {
-    id: 9,
-    post_id: 17,
-    post_title: 'RRB NTPC Undergraduate & Graduate Vacancy Notification 2026',
-    author_name: 'Sanjay Rathore',
-    author_email: 'sanjay.rathore.upsc@gmail.com',
-    content: 'Typing skill test qualification criteria English 30 WPM and Hindi 25 WPM without backspace allow hoga kya?',
-    status: 'pending',
-    created_at: '2026-09-23 07:10:05',
-  },
-  {
-    id: 10,
-    post_id: 17,
-    post_title: 'RRB NTPC Undergraduate & Graduate Vacancy Notification 2026',
-    author_name: 'Ananya Mukherjee',
-    author_email: 'ananya.mukherjee@gmail.com',
-    content: 'Detailed notification PDF link working fine. Station Master post ke liye CBAT psycho test preparation tips bhi post karein.',
-    status: 'approved',
-    created_at: '2026-09-23 09:35:44',
-  },
-  {
-    id: 11,
-    post_id: 22,
-    post_title: 'RRB Technician Grade 3 Syllabus 2026: CBT Exam Pattern, Trade-Wise Topics & Marking Scheme',
-    author_name: 'Manish Gupta',
-    author_email: 'manishgupta.iti@gmail.com',
-    content: 'Electrician trade ke important formulas and circuit theory revision guide upload kar dijiye please.',
-    status: 'approved',
-    created_at: '2026-09-23 12:40:19',
-  },
-  {
-    id: 12,
-    post_id: 20,
-    post_title: 'RRB Group D Answer Key 2026: Direct Link & Question Paper PDF',
-    author_name: 'Praveen Tiwari',
-    author_email: 'praveentwr88@gmail.com',
-    content: 'Answer key calculator tool bohot accurate result de raha hai, thank you admin sir!',
-    status: 'approved',
-    created_at: '2026-09-23 14:02:11',
-  },
-];
 
 export type TabType = 'dashboard' | 'list' | 'add' | 'edit' | 'categories' | 'menu' | 'comments' | 'subscribers' | 'settings';
 
@@ -405,11 +283,13 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
     setLoading(true);
     try {
       // 1. Fetch Posts
+      let currentPosts: Post[] = [];
       try {
         const postsRes = await fetch(`${API_BASE}/api/posts?status=all`, { cache: 'no-store' });
         if (postsRes.ok) {
           const postsData = await postsRes.json();
-          setPosts(Array.isArray(postsData) ? postsData : []);
+          currentPosts = Array.isArray(postsData) ? postsData : [];
+          setPosts(currentPosts);
         } else {
           setPosts([]);
         }
@@ -418,11 +298,13 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       }
 
       // 2. Fetch Settings
+      let currentSettings: Record<string, any> = {};
       try {
         const settingsRes = await fetch(`${API_BASE}/api/settings`, { cache: 'no-store' });
         if (settingsRes.ok) {
           const settingsData = await settingsRes.json();
           if (settingsData && typeof settingsData === 'object') {
+            currentSettings = settingsData;
             setSettingsMap(settingsData);
 
             if (settingsData.site_title) setSiteTitleVal(settingsData.site_title);
@@ -471,50 +353,34 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
         }
       } catch (_) {}
 
-      // 3. Fetch Comments
+      // 3. Fetch Comments (Connected directly to Cloudflare D1 Database API)
       try {
-        let loadedComments: CommentItem[] | null = null;
+        let liveComments: CommentItem[] = [];
 
-        // Try 1: Public database comments json (/data/comments.json)
-        try {
-          const jsonRes = await fetch('/data/comments.json', { cache: 'no-store' });
-          if (jsonRes.ok) {
-            const jsonData = await jsonRes.json();
-            if (Array.isArray(jsonData) && jsonData.length > 0) {
-              loadedComments = jsonData;
-            }
-          }
-        } catch (_) {}
-
-        // Try 2: Public API comments json (/api/comments.json)
-        if (!loadedComments || loadedComments.length === 0) {
-          try {
-            const jsonRes = await fetch('/api/comments.json', { cache: 'no-store' });
-            if (jsonRes.ok) {
-              const jsonData = await jsonRes.json();
-              if (Array.isArray(jsonData) && jsonData.length > 0) {
-                loadedComments = jsonData;
+        if (currentPosts.length > 0) {
+          const commentPromises = currentPosts.map(async (p) => {
+            try {
+              const res = await fetch(`${API_BASE}/api/comments?post_id=${p.id}`, { cache: 'no-store' });
+              if (res.ok) {
+                const postComments = await res.json();
+                if (Array.isArray(postComments)) {
+                  return postComments.map((c: any) => ({
+                    ...c,
+                    post_title: p.title || `Post #${p.id}`,
+                  }));
+                }
               }
-            }
-          } catch (_) {}
-        }
-
-        // Try 3: Remote Cloudflare Worker API (${API_BASE}/api/comments)
-        if (!loadedComments || loadedComments.length === 0) {
-          try {
-            const commentsRes = await fetch(`${API_BASE}/api/comments`, { cache: 'no-store' });
-            if (commentsRes.ok) {
-              const commentsData = await commentsRes.json();
-              if (Array.isArray(commentsData) && commentsData.length > 0) {
-                loadedComments = commentsData;
-              }
-            }
-          } catch (_) {}
-        }
-
-        // Try 4: Fallback to default comments seed
-        if (!loadedComments || loadedComments.length === 0) {
-          loadedComments = DEFAULT_COMMENTS;
+            } catch (_) {}
+            return [];
+          });
+          const allCommentsArrays = await Promise.all(commentPromises);
+          liveComments = allCommentsArrays.flat();
+          // Sort newest comments first
+          liveComments.sort((a, b) => {
+            const timeA = new Date(a.created_at || '').getTime() || a.id || 0;
+            const timeB = new Date(b.created_at || '').getTime() || b.id || 0;
+            return timeB - timeA;
+          });
         }
 
         // Apply locally stored comment status overrides & deleted IDs
@@ -524,7 +390,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             if (deletedRaw) {
               const deletedIds = JSON.parse(deletedRaw);
               if (Array.isArray(deletedIds) && deletedIds.length > 0) {
-                loadedComments = loadedComments.filter((c) => !deletedIds.includes(c.id));
+                liveComments = liveComments.filter((c) => !deletedIds.includes(c.id));
               }
             }
 
@@ -532,7 +398,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             if (approvedRaw) {
               const approvedIds = JSON.parse(approvedRaw);
               if (Array.isArray(approvedIds) && approvedIds.length > 0) {
-                loadedComments = loadedComments.map((c) =>
+                liveComments = liveComments.map((c) =>
                   approvedIds.includes(c.id) ? { ...c, status: 'approved' as const } : c
                 );
               }
@@ -540,63 +406,24 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
           } catch (_) {}
         }
 
-        setComments(Array.isArray(loadedComments) ? loadedComments : []);
+        setComments(liveComments);
       } catch (_) {
         setComments([]);
       }
 
-      // 4. Fetch Subscribers
+      // 4. Fetch Subscribers (Connected directly to Cloudflare D1 Database API)
       try {
-        let loadedSubscribers: SubscriberItem[] | null = null;
+        let liveSubscribers: SubscriberItem[] = [];
 
-        // Try 1: Public database subscribers json (/data/subscribers.json)
-        try {
-          const jsonRes = await fetch('/data/subscribers.json', { cache: 'no-store' });
-          if (jsonRes.ok) {
-            const jsonData = await jsonRes.json();
-            if (Array.isArray(jsonData) && jsonData.length > 0) {
-              loadedSubscribers = jsonData;
-            }
-          }
-        } catch (_) {}
-
-        // Try 2: Public API subscribers json (/api/subscribers.json)
-        if (!loadedSubscribers || loadedSubscribers.length === 0) {
+        if (currentSettings && currentSettings.site_subscribers) {
           try {
-            const jsonRes = await fetch('/api/subscribers.json', { cache: 'no-store' });
-            if (jsonRes.ok) {
-              const jsonData = await jsonRes.json();
-              if (Array.isArray(jsonData) && jsonData.length > 0) {
-                loadedSubscribers = jsonData;
-              }
+            const parsed = typeof currentSettings.site_subscribers === 'string'
+              ? JSON.parse(currentSettings.site_subscribers)
+              : currentSettings.site_subscribers;
+            if (Array.isArray(parsed)) {
+              liveSubscribers = parsed;
             }
           } catch (_) {}
-        }
-
-        // Try 3: Remote Cloudflare Worker API (${API_BASE}/api/subscribers)
-        if (!loadedSubscribers || loadedSubscribers.length === 0) {
-          try {
-            const subRes = await fetch(`${API_BASE}/api/subscribers`, { cache: 'no-store' });
-            if (subRes.ok) {
-              const subData = await subRes.json();
-              if (Array.isArray(subData) && subData.length > 0) {
-                loadedSubscribers = subData;
-              }
-            }
-          } catch (_) {}
-        }
-
-        // Try 4: Fallback to database subscribers seed if network was unreachable
-        if (!loadedSubscribers || loadedSubscribers.length === 0) {
-          loadedSubscribers = [
-            { id: 1, email: 'test.direct@gmail.com', created_at: '2026-07-21 06:26:00' },
-            { id: 2, email: 'from_site5_no_resolve@gmail.com', created_at: '2026-07-21 06:27:03' },
-            { id: 3, email: 'railway.aspirant.2026@gmail.com', created_at: '2026-07-21 06:27:17' },
-            { id: 4, email: 'test.final.verified@gmail.com', created_at: '2026-07-21 06:27:38' },
-            { id: 17, email: 'twrfdyme@immenseignite.info', created_at: '2026-07-25 22:31:23' },
-            { id: 18, email: 'dlnxgmnk@immenseignite.info', created_at: '2026-07-25 22:31:51' },
-            { id: 19, email: 'mhpinfhe@immenseignite.info', created_at: '2026-07-25 22:32:11' },
-          ];
         }
 
         // Filter out any subscribers that the admin previously deleted
@@ -606,13 +433,13 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
             if (deletedRaw) {
               const deletedIds = JSON.parse(deletedRaw);
               if (Array.isArray(deletedIds) && deletedIds.length > 0) {
-                loadedSubscribers = loadedSubscribers.filter((s) => !deletedIds.includes(s.id));
+                liveSubscribers = liveSubscribers.filter((s) => !deletedIds.includes(s.id));
               }
             }
           } catch (_) {}
         }
 
-        setSubscribers(Array.isArray(loadedSubscribers) ? loadedSubscribers : []);
+        setSubscribers(liveSubscribers);
       } catch (_) {
         setSubscribers([]);
       }
@@ -3529,11 +3356,20 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                             title="Remove Subscriber"
                             onClick={async () => {
                               if (!confirm('Remove subscriber email?')) return;
+                              const updatedSubscribers = Array.isArray(subscribers)
+                                ? subscribers.filter((item) => item.id !== s.id)
+                                : [];
+
                               try {
-                                await fetch(`${API_BASE}/api/admin/subscribers`, {
+                                await fetch(`${API_BASE}/api/admin/settings`, {
                                   method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ action: 'delete', id: s.id }),
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer d1-admin-session-token-2026',
+                                  },
+                                  body: JSON.stringify({
+                                    site_subscribers: JSON.stringify(updatedSubscribers),
+                                  }),
                                 }).catch(() => {});
                               } catch (_) {}
 
@@ -3548,7 +3384,7 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                                 } catch (_) {}
                               }
 
-                              setSubscribers((prev) => (Array.isArray(prev) ? prev.filter((item) => item.id !== s.id) : []));
+                              setSubscribers(updatedSubscribers);
                               showSuccess('Subscriber removed successfully');
                             }}
                           >
