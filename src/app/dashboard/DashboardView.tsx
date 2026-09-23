@@ -349,21 +349,21 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
       try {
         let loadedSubscribers: SubscriberItem[] | null = null;
 
-        // Try 1: Next.js internal API route (/api/subscribers)
+        // Try 1: Public database subscribers json (/data/subscribers.json)
         try {
-          const localRes = await fetch('/api/subscribers', { cache: 'no-store' });
-          if (localRes.ok) {
-            const localData = await localRes.json();
-            if (Array.isArray(localData) && localData.length > 0) {
-              loadedSubscribers = localData;
+          const jsonRes = await fetch('/data/subscribers.json', { cache: 'no-store' });
+          if (jsonRes.ok) {
+            const jsonData = await jsonRes.json();
+            if (Array.isArray(jsonData) && jsonData.length > 0) {
+              loadedSubscribers = jsonData;
             }
           }
         } catch (_) {}
 
-        // Try 2: Public database subscribers json (/data/subscribers.json)
+        // Try 2: Public API subscribers json (/api/subscribers.json)
         if (!loadedSubscribers || loadedSubscribers.length === 0) {
           try {
-            const jsonRes = await fetch('/data/subscribers.json', { cache: 'no-store' });
+            const jsonRes = await fetch('/api/subscribers.json', { cache: 'no-store' });
             if (jsonRes.ok) {
               const jsonData = await jsonRes.json();
               if (Array.isArray(jsonData) && jsonData.length > 0) {
@@ -3151,12 +3151,6 @@ export default function DashboardView({ initialTab = 'dashboard' }: DashboardVie
                             onClick={async () => {
                               if (!confirm('Remove subscriber email?')) return;
                               try {
-                                await fetch('/api/subscribers', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ action: 'delete', id: s.id }),
-                                }).catch(() => {});
-
                                 await fetch(`${API_BASE}/api/admin/subscribers`, {
                                   method: 'POST',
                                   headers: { 'Content-Type': 'application/json' },
